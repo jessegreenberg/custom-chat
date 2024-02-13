@@ -12,6 +12,18 @@ export default class Constants {
 
   public static readonly FONT = new Font( {
     family: 'sans-serif',
-    size: 25,
+    size: 16,
   } );
+
+  public static readonly TITLE_FONT = new Font( {
+    family: 'sans-serif',
+    size: 24,
+  } );
+
+  public static readonly TEXT_INPUT_OPTIONS = {
+    font: Constants.FONT,
+    multiline: true,
+    backgroundColor: Constants.BACKGROUND_COLOR,
+    color: Constants.TEXT_COLOR,
+  }
 }

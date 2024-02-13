@@ -22,7 +22,7 @@ export default class ChatView extends Node {
     super();
 
     this.welcomeText = new Text( 'How can I help you?', {
-      font: Constants.FONT,
+      font: Constants.TITLE_FONT,
       fill: Constants.TEXT_COLOR
     } );
     this.addChild( this.welcomeText );

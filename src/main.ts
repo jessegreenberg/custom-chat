@@ -25,7 +25,11 @@ window.assertions.enableAssert();
 // receives input events and is on top.
 const domRootNode = new Node();
 const domDisplay = new Display( domRootNode, {
-  accessibility: false
+  accessibility: false,
+
+  // So that events can go to the other DOM display (particularly important for Text input and selection)
+  listenToOnlyElement: false,
+  allowCSSHacks: false
 } );
 document.body.appendChild( domDisplay.domElement );
 
@@ -37,8 +41,9 @@ const rootNode = new Node( {
 const display = new Display( rootNode, {
   backgroundColor: Constants.BACKGROUND_COLOR,
 
-  // So that events can go to the other DOM display
-  listenToOnlyElement: false
+  // So that events can go to the other DOM display (particularly important for Text input and selection)
+  listenToOnlyElement: false,
+  allowCSSHacks: false,
 } );
 document.body.appendChild( display.domElement );
 

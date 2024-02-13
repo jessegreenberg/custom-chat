@@ -42,5 +42,8 @@ export default class ChatModel {
 
     // Make a request to OpenAI
     // ...
+
+
+    this.addMessage( new Message( 'I am a bot', 'bot', new Date().getTime() ) );
   }
 }

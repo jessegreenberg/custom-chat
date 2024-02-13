@@ -12,7 +12,7 @@ class TextInput extends Node {
   public valueSubmittedEmitter: Emitter<string[]>;
   public readonly valueChangedEmitter: Emitter<string[]>;
   public readonly layoutChangeEmitter = new Emitter();
-  private readonly domElement: HTMLInputElement | HTMLTextAreaElement;
+  public readonly domElement: HTMLInputElement | HTMLTextAreaElement;
   private readonly disposeTextInput: () => void;
 
   public constructor( options?: IntentionalAny ) {
