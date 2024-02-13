@@ -3,12 +3,16 @@ import ChatModel from '../model/ChatModel.ts';
 import Constants from '../Constants.ts';
 import TextInput from './TextInput.ts';
 import MessageListView from './MessageListView.ts';
+import QueryParameters from '../QueryParameters.ts';
+import Message from '../model/Message.ts';
+import LoadingIcon from './LoadingIcon.ts';
 
 export default class ChatView extends Node {
 
   private readonly welcomeText: Text;
   private readonly chatInput: TextInput;
   private readonly messageListView: MessageListView;
+  private readonly loadingIcon: LoadingIcon;
 
   private availableWidth = 0;
   private availableHeight = 0;
@@ -31,13 +35,18 @@ export default class ChatView extends Node {
     this.chatInput = new TextInput( {
       placeholder: 'Message...',
       multiline: true,
-      rows: 3,
+      rows: 6,
+      cols: 100,
       backgroundColor: Constants.BACKGROUND_COLOR,
       color: Constants.TEXT_COLOR,
-
       font: Constants.FONT
     } );
     this.domLayer.addChild( this.chatInput );
+
+    this.loadingIcon = new LoadingIcon( {
+      visibleProperty: model.isWaitingForResponseProperty
+    } );
+    this.addChild( this.loadingIcon );
 
     this.chatInput.layoutChangeEmitter.addListener( () => {
       this.layout( this.availableWidth, this.availableHeight );
@@ -63,24 +72,47 @@ export default class ChatView extends Node {
     this.messageListView.layoutEmitter.addListener( () => {
       this.layout( this.availableWidth, this.availableHeight );
     } );
+
+    // DEBUG - if in debug mode, add some testing messages to observe layout
+    if ( QueryParameters.debug ) {
+      model.addMessage( new Message( 'Message 1', 'user', Date.now() ) );
+      model.addMessage( new Message( 'Message 2', 'bot', Date.now() ) );
+      model.addMessage( new Message( 'Message 3', 'user', Date.now() ) );
+      model.addMessage( new Message( 'Message 4', 'bot', Date.now() ) );
+
+      const testOutput =
+        `
+         Certainly! Here is a hello world program in JavaScript:
+
+ \`\`\`javascript
+ console.log( 'hello!' )
+ \`\`\`
+
+ I hope this was helpful!
+        `
+
+      model.addMessage( new Message( testOutput, 'bot', Date.now() ) );
+    }
   }
 
   layout( width: number, height: number ): void {
     this.availableWidth = width;
     this.availableHeight = height;
 
-    this.welcomeText.centerX = width / 2;
-    this.welcomeText.centerY = height / 2;
-
     this.chatInput.centerX = width / 2;
     this.chatInput.bottom = height - 50;
+
+    this.loadingIcon.centerX = width / 2;
+    this.loadingIcon.centerY = this.chatInput.top - 50;
+
+    this.welcomeText.centerX = width / 2;
+    this.welcomeText.bottom = this.chatInput.top - 50;
 
     this.messageListView.centerX = width / 2;
     this.messageListView.top = 50;
   }
 
   step( dt: number ): void {
-
-    // update the view based on the model
+    this.loadingIcon.step( dt );
   }
 }

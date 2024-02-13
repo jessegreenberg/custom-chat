@@ -162,17 +162,16 @@ class TextInput extends Node {
       }
     } );
 
-    // native DOM event listener to handle - while input goes to the DOM element it does NOT go through scenery
-    domElement.addEventListener( 'keyup', ( event ) => {
+    domElement.addEventListener( 'keydown', event => {
 
       // @ts-ignore - Unclear why code is not available
       if ( event.code === KeyboardUtils.KEY_ENTER && !event.shiftKey ) {
-
-        // save the text input for parsing
+        event.preventDefault();
         this.valueSubmittedEmitter.emit( domElement.value );
-
-        // remove focus on submit?
         domElement.blur();
+
+        // clear the value after submission
+        this.setValue( '' );
       }
     } );
 

@@ -43,13 +43,11 @@ const display = new Display( rootNode, {
 
   // So that events can go to the other DOM display (particularly important for Text input and selection)
   listenToOnlyElement: false,
-  allowCSSHacks: false,
+  allowCSSHacks: false
 } );
 document.body.appendChild( display.domElement );
 
 const layoutBoundsProperty = new Property( new Bounds2( 0, 0, window.innerWidth, window.innerHeight ) );
-
-// display.initializeEvents();
 
 // Set up the model and view - the entry point for the application
 const model = new ChatModel();
