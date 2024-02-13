@@ -37,9 +37,21 @@ app.post( '/api/openai', async ( req, res ) => {
     };
   } );
 
+  const leadingMessage = {
+    role: 'system',
+    content: `You are a professional chat-bot. Please be as helpful, kind, and informative to the user as
+    possible. Please keep responses as short as possible, but not shorter than necessary.`
+  };
+  formattedMessages.unshift( leadingMessage );
+
   try {
     const completion = await openai.chat.completions.create( {
-      model: 'gpt-3.5-turbo',
+
+      // the latest model, OpenAI claims this model has reduced 'laziness'
+      model: 'gpt-4-0125-preview',
+      // model: 'gpt-4-turbo-preview', // currently points to the same model as 'gpt-4-0125-preview'
+      // model: 'gpt-4', // snapshot of gpt-4 from June 2023
+      // model: 'gpt-3.5-turbo', // faster, cheaper
       messages: formattedMessages
     } );
     res.json( completion.choices[ 0 ] );

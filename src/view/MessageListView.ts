@@ -147,6 +147,7 @@ export default class MessageListView extends Node {
     let lastIndex = 0;
 
     // Find each code block and extract the content before and the code itself
+    // @ts-ignore
     message.replace( codeBlockRegex, ( match, code, index ) => {
       // Add the text before the code block, if any
       if ( index > lastIndex ) {
