@@ -19,17 +19,23 @@ cd custom-chat
 npm install
 ```
 
-(3) Run it from a browser:
+(3) Create a .env file in the root directory. Add your OpenAI API key to the .env file:
 
-The following will run a server on your local machine, and you can navigate to the URL to see the demo.
+```
+OPENAI_API_KEY=your-api-key
+```
+
+(4) Run it from a browser:
+
+The following will run a server on your local machine, and you can navigate to the URL:
 
 ```sh
-npx vite serve
+npm run dev
 ```
 
 It will print out the URL to navigate to, e.g. http://localhost:5173/.
 
-(4) Built it:
+(5) Built it:
 
 ```sh
 npx vite build
@@ -38,7 +44,7 @@ npx vite build
 It will be built into the `dist` directory, where dist/index.html is the entry point. The dist directory can be
 moved/served from wherever.
 
-(5) Lint it:
+(6) Lint it:
 
 ```sh
 npx eslint .
