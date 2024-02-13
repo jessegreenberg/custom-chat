@@ -6,11 +6,7 @@ See https://github.com/phetsims/phet-vite-demo.
 
 ### Quick Start
 
-(1) Clone the repo:
-
-```sh
-TODO
-```
+(1) Clone the repo.
 
 (2) Install dev dependencies:
 
