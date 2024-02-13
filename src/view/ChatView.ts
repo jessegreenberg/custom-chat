@@ -6,6 +6,7 @@ import MessageListView from './MessageListView.ts';
 import QueryParameters from '../QueryParameters.ts';
 import Message from '../model/Message.ts';
 import LoadingIcon from './LoadingIcon.ts';
+import ConversationList from './ConversationList.ts';
 
 export default class ChatView extends Node {
 
@@ -13,6 +14,7 @@ export default class ChatView extends Node {
   private readonly chatInput: TextInput;
   private readonly messageListView: MessageListView;
   private readonly loadingIcon: LoadingIcon;
+  private readonly conversationList: ConversationList;
 
   private availableWidth = 0;
   private availableHeight = 0;
@@ -69,7 +71,14 @@ export default class ChatView extends Node {
     this.messageListView = new MessageListView( model );
     this.domLayer.addChild( this.messageListView );
 
+    this.conversationList = new ConversationList( model );
+    this.domLayer.addChild( this.conversationList );
+
     this.messageListView.layoutEmitter.addListener( () => {
+      this.layout( this.availableWidth, this.availableHeight );
+    } );
+
+    this.conversationList.layoutEmitter.addListener( () => {
       this.layout( this.availableWidth, this.availableHeight );
     } );
 
@@ -110,6 +119,9 @@ export default class ChatView extends Node {
 
     this.messageListView.centerX = width / 2;
     this.messageListView.top = 50;
+
+    this.conversationList.left = 50;
+    this.conversationList.top = 50;
   }
 
   step( dt: number ): void {

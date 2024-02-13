@@ -120,12 +120,15 @@ export default class MessageListView extends Node {
       usableParent.scrollTop = usableParent.scrollHeight;
 
       // Remote the message and layout listener when this message is removed from the model
-      model.messages.addItemRemovedListener( removedMessage => {
+      const removalListener = ( removedMessage: Message ) => {
         if ( removedMessage === message ) {
           usableParent.removeChild( messageElement );
           usableParent.removeChild( labelElement );
+
+          model.messages.removeItemRemovedListener( removalListener );
         }
-      } );
+      }
+      model.messages.addItemRemovedListener( removalListener );
     } );
 
     // Scenery doesn't set the correct touch areas for the element - manually update them when the DOM element resizes
