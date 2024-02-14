@@ -2,6 +2,7 @@ import ScrollableDOMElement from './ScrollableDOMElement.ts';
 import ChatModel from '../model/ChatModel.ts';
 import Constants from '../Constants.ts';
 import Conversation from '../model/Conversation.ts';
+import StyledButton from './StyledButton.ts';
 
 export default class ConversationList extends ScrollableDOMElement {
 
@@ -12,22 +13,14 @@ export default class ConversationList extends ScrollableDOMElement {
 
     this.parentElement.style.textAlign = 'center';
 
-    const newConversationButton = document.createElement( 'button' );
-    newConversationButton.textContent = 'New Conversation';
-    newConversationButton.style.color = Constants.TEXT_COLOR;
-    newConversationButton.style.fontSize = Constants.FONT.size;
-    newConversationButton.style.fontFamily = Constants.FONT.family;
-    newConversationButton.style.backgroundColor = Constants.BACKGROUND_COLOR_LIGHTER;
-    newConversationButton.style.width = '150px';
-    newConversationButton.style.cursor = 'pointer';
-    newConversationButton.style.paddingBottom = '5px';
-    newConversationButton.style.paddingTop = '5px';
-    newConversationButton.style.marginTop = '2px';
-    newConversationButton.style.marginBottom = '2px';
+    const conversationButton = new StyledButton( {
+      label: 'New Conversation',
+      onclick: () => {
+        model.createNewConversation();
+      }
+    } );
+    const newConversationButton = conversationButton.domElement;
 
-    newConversationButton.onclick = () => {
-      model.createNewConversation();
-    };
     this.parentElement.appendChild( newConversationButton );
 
     const separator = document.createElement( 'hr' );
@@ -39,35 +32,19 @@ export default class ConversationList extends ScrollableDOMElement {
     this.parentElement.appendChild( conversationParent );
 
     const addConversation = ( conversation: Conversation ) => {
-
-      // A label that indicates who wrote the message
-      const buttonElement = document.createElement( 'button' );
-      buttonElement.textContent = conversation.name;
-      buttonElement.style.fontSize = Constants.FONT.size;
-      buttonElement.style.fontFamily = Constants.FONT.family;
-      buttonElement.style.color = Constants.TEXT_COLOR;
-      buttonElement.style.width = '150px';
-      buttonElement.style.textOverflow = 'ellipsis';
-      buttonElement.style.overflow = 'hidden';
-      buttonElement.style.whiteSpace = 'nowrap';
-      buttonElement.style.backgroundColor = Constants.BACKGROUND_COLOR_LIGHTER;
-      buttonElement.style.color = Constants.TEXT_COLOR;
-      buttonElement.style.paddingTop = '5px';
-      buttonElement.style.paddingBottom = '5px';
-      buttonElement.style.marginTop = '2px';
-      buttonElement.style.marginBottom = '2px';
-      buttonElement.style.cursor = 'pointer';
-
-      buttonElement.onclick = () => {
-        model.activateConversation( conversation );
-      };
+      const buttonElement = new StyledButton( {
+        label: conversation.name,
+        onclick: () => {
+          model.activateConversation( conversation );
+        }
+      } );
 
       // Add the button to the front of the conversation parent
-      conversationParent.insertBefore( buttonElement, conversationParent.firstChild );
+      conversationParent.insertBefore( buttonElement.domElement, conversationParent.firstChild );
 
       const removalListener = ( removedConversation: Conversation ) => {
         if ( conversation === removedConversation ) {
-          conversationParent.removeChild( buttonElement );
+          conversationParent.removeChild( buttonElement.domElement );
           model.conversations.removeItemRemovedListener( removalListener );
         }
       };

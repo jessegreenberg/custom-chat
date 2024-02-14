@@ -9,6 +9,8 @@ export default class ScrollableDOMElement extends Node {
   // A reference to a parent DOM element - when you create DOM Nodes, add them to this one.
   public readonly parentElement: HTMLElement;
 
+  private readonly layoutElement: HTMLElement;
+
   constructor( providedOptions?: IntentionalAny ) {
 
     const options = _.merge( {
@@ -28,12 +30,12 @@ export default class ScrollableDOMElement extends Node {
 
     // A parent with dimensions for scenery - this is necessary for layout to work (display attribute is
     // particularly important)
-    const layoutElement = document.createElement( 'div' );
-    layoutElement.style.display = 'inline-block';
-    layoutElement.style.height = options.height;
-    layoutElement.style.width = options.width;
+    this.layoutElement = document.createElement( 'div' );
+    this.layoutElement.style.display = 'inline-block';
+    this.layoutElement.style.height = options.height;
+    this.layoutElement.style.width = options.width;
 
-    const parentNode = new DOM( layoutElement );
+    const parentNode = new DOM( this.layoutElement );
     layoutRectangle.addChild( parentNode );
 
     // A parent for content so we can get free scrollbars
@@ -42,7 +44,7 @@ export default class ScrollableDOMElement extends Node {
     this.parentElement.style.height = '100%';
     this.parentElement.style.overflowY = 'auto';
     this.parentElement.style.scrollbarGutter = 'stable';
-    layoutElement.appendChild( this.parentElement );
+    this.layoutElement.appendChild( this.parentElement );
 
     // Scenery doesn't set the correct touch areas for the element - manually update them when the DOM element resizes
     const resizeObserver = new ResizeObserver( entries => {
@@ -59,5 +61,12 @@ export default class ScrollableDOMElement extends Node {
    */
   public scrollToBottom(): void {
     this.parentElement.scrollTop = this.parentElement.scrollHeight;
+  }
+
+  /**
+   * Updates the scroll height - the amount of vertical space this will take up.
+   */
+  public setScrollHeight( height: number ): void {
+    this.parentElement.style.height = height + 'px';
   }
 }

@@ -59,8 +59,8 @@ export default class ChatView extends Node {
     } );
 
     model.messages.lengthProperty.link( ( length: number ) => {
+      this.welcomeText.visible = length === 0;
       if ( length > 0 ) {
-        this.welcomeText.visible = false;
 
         // relayout the view
         this.layout( this.availableWidth, this.availableHeight );
@@ -122,6 +122,8 @@ export default class ChatView extends Node {
 
     this.conversationList.left = 50;
     this.conversationList.top = 50;
+
+    this.conversationList.setScrollHeight( height - 100 );
   }
 
   step( dt: number ): void {

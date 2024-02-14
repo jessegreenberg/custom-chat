@@ -3,22 +3,21 @@ import Message from './Message.ts';
 import Conversation from './Conversation.ts';
 
 export default class ChatModel {
+
+  // The displayed list of messages for the active conversation
   public readonly messages: ObservableArray<Message>;
 
+  // The conversation that is currently being displayed, and whose messages are used to send to the server
+  public readonly activeConversationProperty = new Property<Conversation | null>( null );
+
+  // Indicates if the model is waiting for a response from the server for text
   public readonly isWaitingForTextProperty = new BooleanProperty( false );
+
+  // Indicates if the model is waiting for a response from the server for speech
   public readonly isWaitingForSpeechProperty = new BooleanProperty( false );
 
-  // conversations - an array of messages arrays, where each array is a conversation
-  // when the app loads, a new conversation is added
-  // When a user presses 'new conversation', a new conversation is added and becomes active
-  // When a user taps on a conversation in the history, that conversation becomes active
-
-  // there is an activeConversation property - a reference to the current conversation
-  // when the app loads, old conversations are loaded from local storage
-
+  // The list of conversations that have been created
   public readonly conversations: ObservableArray<Conversation>;
-
-  public readonly activeConversationProperty = new Property<Conversation | null>( null );
 
   // @ts-ignore - TODO: Why are all of these required in the typing?
   public readonly isWaitingForResponseProperty: DerivedProperty<boolean>;

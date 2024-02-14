@@ -3,6 +3,7 @@ import ChatModel from '../model/ChatModel.ts';
 import Message from '../model/Message.ts';
 import Constants from '../Constants.ts';
 import { Emitter } from 'phet-lib/axon';
+import StyledButton from './StyledButton.ts';
 
 export default class MessageListView extends Node {
   public readonly layoutEmitter: Emitter = new Emitter();
@@ -63,28 +64,35 @@ export default class MessageListView extends Node {
       // if the message is from the bot, add a small play button to speak it
       if ( message.source === 'bot' ) {
 
-        const playButton = document.createElement( 'button' );
-        playButton.textContent = '▶';
-        playButton.style.backgroundColor = Constants.BACKGROUND_COLOR_LIGHTER;
-        playButton.style.fontSize = '20px';
-        playButton.style.cursor = 'pointer';
-        playButton.style.width = '30px';
-        playButton.style.height = '30px';
-        playButton.style.color = Constants.TEXT_COLOR;
+        const playButton = new StyledButton( {
+          label: '▶',
+          fontSize: '20px',
+          width: '30px',
+          height: '30px',
+          onclick: () => {
+            model.getSpeechFromServer( message.string ).then( ( data: { audio: string, contentType: string } ) => {
+              const audioBlob = new Blob( [ new Uint8Array( atob( data.audio ).split( '' ).map( char => char.charCodeAt( 0 ) ) ) ], { type: data.contentType } );
+              const audioUrl = URL.createObjectURL( audioBlob );
+              const audio = new Audio( audioUrl );
+              audio.play();
+              audio.onended = () => URL.revokeObjectURL( audioUrl );
+            } );
+          }
+        } );
 
         // place the button below the message to the right
-        playButton.style.display = 'block';
-        playButton.style.margin = 'auto';
-        playButton.style.marginTop = '10px';
-        playButton.style.marginRight = '0px';
-        playButton.style.marginBottom = '0px';
-        playButton.style.marginLeft = 'auto';
+        playButton.domElement.style.display = 'block';
+        playButton.domElement.style.margin = 'auto';
+        playButton.domElement.style.marginTop = '10px';
+        playButton.domElement.style.marginRight = '0px';
+        playButton.domElement.style.marginBottom = '0px';
+        playButton.domElement.style.marginLeft = 'auto';
 
         // an object with audio and contentType
         let audioData: { audio: string, contentType: string } | null = null;
         let webAudio: HTMLAudioElement | null = null;
 
-        playButton.onclick = async () => {
+        playButton.domElement.onclick = async () => {
 
           // Only request once per message, save the result for future clicks
           if ( audioData === null ) {
@@ -111,7 +119,7 @@ export default class MessageListView extends Node {
             webAudio.onended = () => URL.revokeObjectURL( audioUrl );
           }
         };
-        messageElement.appendChild( playButton );
+        messageElement.appendChild( playButton.domElement );
       }
 
       usableParent.appendChild( messageElement );
