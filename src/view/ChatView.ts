@@ -56,6 +56,16 @@ export default class ChatView extends Node {
       this.layout( this.availableWidth, this.availableHeight );
     } );
 
+    // Uses DOM so that the text is selectable.
+    this.messageListView = new MessageListView( model );
+    this.domLayer.addChild( this.messageListView );
+
+    this.conversationList = new ConversationList( model );
+    this.domLayer.addChild( this.conversationList );
+
+    this.editConversationControls = new EditConversationControls( model );
+    this.domLayer.addChild( this.editConversationControls );
+
     this.chatInput.valueSubmittedEmitter.addListener( ( value: string ) => {
       model.sendMessage( value );
     } );
@@ -68,16 +78,6 @@ export default class ChatView extends Node {
         this.layout( this.availableWidth, this.availableHeight );
       }
     } );
-
-    // Uses DOM so that the text is selectable.
-    this.messageListView = new MessageListView( model );
-    this.domLayer.addChild( this.messageListView );
-
-    this.conversationList = new ConversationList( model );
-    this.domLayer.addChild( this.conversationList );
-
-    this.editConversationControls = new EditConversationControls( model );
-    this.domLayer.addChild( this.editConversationControls );
 
     model.activeConversationProperty.link( () => {
       this.layout( this.availableWidth, this.availableHeight );

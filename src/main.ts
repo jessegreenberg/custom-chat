@@ -54,6 +54,9 @@ const model = new ChatModel();
 const view = new ChatView( model );
 scene.addChild( view );
 
+// load the model (after the view has been fully initialized)
+model.load();
+
 // Add DOM specific elements to the DOM display.
 domRootNode.children = [ view.domLayer ];
 

@@ -38,8 +38,6 @@ export default class ChatModel {
         this.messages.addAll( activeConversation.messages );
       }
     } );
-
-    this.load();
   }
 
   /**
@@ -58,6 +56,8 @@ export default class ChatModel {
     if ( this.activeConversationProperty.value ) {
       this.conversations.remove( this.activeConversationProperty.value );
       this.activateConversation( this.conversations[ this.conversations.length - 1 ] || null );
+
+      this.save();
     }
   }
 
@@ -240,11 +240,12 @@ export default class ChatModel {
       } );
 
       // load the active conversation
-      this.activeConversationProperty.value = this.conversations[ 0 ];
+      this.activateConversation( this.conversations[ this.conversations.length - 1 ] || null );
     }
 
-    // No matter what, we should have at least one conversation
-    this.createNewConversation();
+    if ( this.conversations.length === 0 ) {
+      // this.createNewConversation();
+    }
   }
 
   public save() {
