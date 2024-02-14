@@ -1,36 +1,13 @@
-import { DOM, Node, Rectangle } from 'phet-lib/scenery';
 import ChatModel from '../model/ChatModel.ts';
 import Message from '../model/Message.ts';
 import Constants from '../Constants.ts';
-import { Emitter } from 'phet-lib/axon';
 import StyledButton from './StyledButton.ts';
+import ScrollableDOMElement from './ScrollableDOMElement.ts';
 
-export default class MessageListView extends Node {
-  public readonly layoutEmitter: Emitter = new Emitter();
+export default class MessageListView extends ScrollableDOMElement {
 
-  constructor( model: ChatModel ) {
+  public constructor( model: ChatModel ) {
     super();
-
-    // The bounds of the DOM element are behaving oddly. This rectangle will surround the element
-    // for correct mouse/touch areas and layout for positioning in scenery
-    const layoutRectangle = new Rectangle( 0, 0, 0, 0, { fill: 'rgba(255,255,255,0.0)' } );
-    this.addChild( layoutRectangle );
-
-    const parentElement = document.createElement( 'div' );
-    parentElement.style.display = 'inline-block'; // This is necessary for scenery layout to work
-    parentElement.style.height = '500px';
-    parentElement.style.width = '850px';
-
-    const parentNode = new DOM( parentElement );
-    layoutRectangle.addChild( parentNode );
-
-    // A parent for content so we can use free scrollbars
-    const usableParent = document.createElement( 'div' );
-    usableParent.className = 'scrollable';
-    usableParent.style.height = '100%';
-    usableParent.style.overflowY = 'auto';
-    usableParent.style.scrollbarGutter = 'stable';
-    parentElement.appendChild( usableParent );
 
     model.messages.addItemAddedListener( ( message: Message ) => {
 
@@ -38,7 +15,7 @@ export default class MessageListView extends Node {
       const labelElement = document.createElement( 'p' );
       labelElement.textContent = message.source === 'user' ? 'You:' : 'Bot:';
       this.styleElement( labelElement );
-      usableParent.appendChild( labelElement );
+      this.parentElement.appendChild( labelElement );
 
       const messageElement = document.createElement( 'div' );
       messageElement.style.margin = '0 auto 20px';
@@ -122,31 +99,22 @@ export default class MessageListView extends Node {
         messageElement.appendChild( playButton.domElement );
       }
 
-      usableParent.appendChild( messageElement );
+      this.parentElement.appendChild( messageElement );
 
       // scroll to the bottom of the chat
-      usableParent.scrollTop = usableParent.scrollHeight;
+      this.parentElement.scrollTop = this.parentElement.scrollHeight;
 
       // Remote the message and layout listener when this message is removed from the model
       const removalListener = ( removedMessage: Message ) => {
         if ( removedMessage === message ) {
-          usableParent.removeChild( messageElement );
-          usableParent.removeChild( labelElement );
+          this.parentElement.removeChild( messageElement );
+          this.parentElement.removeChild( labelElement );
 
           model.messages.removeItemRemovedListener( removalListener );
         }
       }
       model.messages.addItemRemovedListener( removalListener );
     } );
-
-    // Scenery doesn't set the correct touch areas for the element - manually update them when the DOM element resizes
-    const resizeObserver = new ResizeObserver( entries => {
-      const entry = entries[ 0 ];
-      const { width, height } = entry.contentRect;
-      layoutRectangle.setRect( 0, 0, width, height );
-      this.layoutEmitter.emit();
-    } );
-    resizeObserver.observe( usableParent );
   }
 
 
@@ -196,22 +164,3 @@ export default class MessageListView extends Node {
     element.style.whiteSpace = 'pre-wrap'; // to preserve new-lines
   }
 }
-
-// User
-// I am building a chat bot that can display code. I want the code to look reasonably formatted in the output. For now I will just use the <pre> tag to wrap code. I can assume that the code is formatted in blocks like that declare the language like
-//
-// Certainly! Here is a hello world program in JavaScript:
-//
-// ```javascript
-// console.log( 'hello!' )
-// ```
-//
-// I hope this was helpful!
-//
-// Can you help me write a function that will take a message string from the chat bot and break it up into an array of content separated by these blocks? So for the above example it should return
-//
-// [
-//   'Certainly! Here is a hello world program in Javascript',
-//  'console.log( 'hello!' ),
-//  'I hope this was helpful!'
-// ]
