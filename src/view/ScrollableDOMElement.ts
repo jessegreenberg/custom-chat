@@ -57,6 +57,14 @@ export default class ScrollableDOMElement extends Node {
   }
 
   /**
+   * Set the width on the layout element
+   * @param width
+   */
+  public setLayoutWidth( width: number ): void {
+    this.layoutElement.style.width = width + 'px';
+  }
+
+  /**
    * Scroll to the bottom of the parent element.
    */
   public scrollToBottom(): void {

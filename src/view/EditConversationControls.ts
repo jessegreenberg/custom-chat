@@ -26,10 +26,11 @@ export default class EditConversationControls extends CustomDOMNode {
     } );
     this.parentElement.appendChild( this.deleteConversationButton.domElement );
 
-    this.renameConversationButton = new StyledButton( {
-      label: 'Rename Conversation',
-      width: '180px'
-    } );
-    this.parentElement.appendChild( this.renameConversationButton.domElement );
+    // TODO: To be added.
+    // this.renameConversationButton = new StyledButton( {
+    //   label: 'Rename Conversation',
+    //   width: '180px'
+    // } );
+    // this.parentElement.appendChild( this.renameConversationButton.domElement );
   }
 }

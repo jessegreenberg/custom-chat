@@ -81,21 +81,21 @@ export default class ChatView extends Node {
     this.editConversationControls = new EditConversationControls( model );
     this.domLayer.addChild( this.editConversationControls );
 
-    const messageListLayoutListener = () => {
+    model.activeConversationProperty.link( () => {
       this.layout( this.availableWidth, this.availableHeight );
-      this.messageListView.layoutEmitter.removeListener( messageListLayoutListener );
+    } );
+
+    // Adjust the layout whenever the DOM elements have a size change.
+    const messageListLayoutListener = () => {
+      this.layoutWithoutResizing();
     }
     this.messageListView.layoutEmitter.addListener( messageListLayoutListener );
-
     const conversationListLayoutListener = () => {
-      this.layout( this.availableWidth, this.availableHeight );
-      this.conversationList.layoutEmitter.removeListener( conversationListLayoutListener );
+      this.layoutWithoutResizing();
     }
     this.conversationList.layoutEmitter.addListener( conversationListLayoutListener );
-
     const editConversationControlsLayoutListener = () => {
-      this.layout( this.availableWidth, this.availableHeight );
-      this.editConversationControls.layoutEmitter.removeListener( editConversationControlsLayoutListener );
+      this.layoutWithoutResizing();
     };
     this.editConversationControls.layoutEmitter.addListener( editConversationControlsLayoutListener );
 
@@ -121,23 +121,33 @@ export default class ChatView extends Node {
     }
   }
 
-  layout( width: number, height: number ): void {
+  /**
+   * Reposition components, assuming that they have been resized correctly. Doing both layout and resizing
+   * in the same function can cause infinite loops when adjusting layout in response to resizing.
+   */
+  layoutWithoutResizing(): void {
+    const width = this.availableWidth;
+    const height = this.availableHeight;
+
     this.availableWidth = width;
     this.availableHeight = height;
 
-    this.chatInput.centerX = width / 2;
+    // The width of the chat area - the full width minus the conversation list and some margin on each side
+    // of the UI components
+    const chatWidth = width - this.conversationList.width - 3 * Constants.UI_MARGIN;
+    const chatCenter = this.conversationList.right + Constants.UI_MARGIN + chatWidth / 2;
+
+    this.chatInput.centerX = chatCenter;
     this.chatInput.bottom = height - 50;
 
-    this.loadingIcon.centerX = width / 2;
+    this.loadingIcon.centerX = chatCenter;
     this.loadingIcon.centerY = this.chatInput.top - 50;
 
-    this.welcomeText.centerX = width / 2;
+    this.welcomeText.centerX = chatCenter;
     this.welcomeText.bottom = this.chatInput.top - 50;
 
-    this.messageListView.centerX = width / 2;
+    this.messageListView.centerX = chatCenter;
     this.messageListView.top = 50;
-    this.messageListView.setScrollHeight( height - this.chatInput.height - this.loadingIcon.height - 150 );
-    this.messageListView.scrollToBottom();
 
     this.conversationList.left = 50;
     this.conversationList.top = 50;
@@ -148,6 +158,33 @@ export default class ChatView extends Node {
     this.editConversationControls.centerY = this.chatInput.centerY;
 
     this.processingLayout = false;
+  }
+
+
+  /**
+   * Adjust the sizing of components within the viewport and reposition them.
+   */
+  layout( width: number, height: number ): void {
+    this.availableWidth = width;
+    this.availableHeight = height;
+
+    // The width of the chat area - the full width minus the conversation list and some margin on each side
+    // of the UI components
+    const chatWidth = width - this.conversationList.width - 3 * Constants.UI_MARGIN;
+    const chatCenter = this.conversationList.right + Constants.UI_MARGIN + chatWidth / 2;
+    const columns = Math.floor( chatWidth / Constants.CHARACTER_WIDTH );
+    this.chatInput.setCols( columns );
+
+    this.chatInput.centerX = chatCenter;
+    this.chatInput.bottom = height - 50;
+
+    this.messageListView.setLayoutWidth( chatWidth );
+    this.messageListView.setScrollHeight( height - this.chatInput.height - this.loadingIcon.height - 150 );
+    this.messageListView.scrollToBottom();
+
+    this.conversationList.setScrollHeight( this.chatInput.top - 50 );
+
+    this.layoutWithoutResizing();
   }
 
   step( dt: number ): void {

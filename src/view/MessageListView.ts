@@ -6,6 +6,8 @@ import ScrollableDOMElement from './ScrollableDOMElement.ts';
 
 export default class MessageListView extends ScrollableDOMElement {
 
+  private readonly messageElements: HTMLElement[] = [];
+
   public constructor( model: ChatModel ) {
     super();
 
@@ -15,6 +17,7 @@ export default class MessageListView extends ScrollableDOMElement {
       const labelElement = document.createElement( 'p' );
       labelElement.textContent = message.source === 'user' ? 'You:' : 'Bot:';
       this.styleElement( labelElement );
+      labelElement.style.display = 'block';
       this.parentElement.appendChild( labelElement );
 
       const messageElement = document.createElement( 'div' );
@@ -24,6 +27,8 @@ export default class MessageListView extends ScrollableDOMElement {
       messageElement.style.padding = '10px';
       messageElement.style.cursor = 'text';
       this.styleElement( messageElement );
+
+      this.messageElements.push( messageElement );
 
       // The content of the message, outlined with a boarder. A cursor to indicate it is selectable
       const messageBlocks = this.splitMessageIntoBlocks( message.string );
@@ -110,6 +115,11 @@ export default class MessageListView extends ScrollableDOMElement {
           this.parentElement.removeChild( messageElement );
           this.parentElement.removeChild( labelElement );
 
+          const index = this.messageElements.indexOf( messageElement );
+          if ( index !== -1 ) {
+            this.messageElements.splice( index, 1 );
+          }
+
           model.messages.removeItemRemovedListener( removalListener );
         }
       }
@@ -162,5 +172,13 @@ export default class MessageListView extends ScrollableDOMElement {
     element.style.display = 'inline-block';
     element.style.width = '800px';
     element.style.whiteSpace = 'pre-wrap'; // to preserve new-lines
+  }
+
+  public override setLayoutWidth( width: number ) {
+    super.setLayoutWidth( width );
+
+    this.messageElements.forEach( messageElement => {
+      messageElement.style.width = width - Constants.UI_MARGIN + 'px';
+    } );
   }
 }
