@@ -170,7 +170,7 @@ export default class MessageListView extends ScrollableDOMElement {
     element.style.fontFamily = Constants.FONT.family;
     element.style.color = Constants.TEXT_COLOR;
     element.style.display = 'inline-block';
-    element.style.width = '800px';
+    element.style.width = `${ this.currentLayoutWidth - Constants.UI_MARGIN }px`;
     element.style.whiteSpace = 'pre-wrap'; // to preserve new-lines
   }
 

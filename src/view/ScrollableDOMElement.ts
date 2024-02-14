@@ -6,6 +6,8 @@ import _ from 'lodash';
 export default class ScrollableDOMElement extends Node {
   public readonly layoutEmitter: Emitter = new Emitter();
 
+  public currentLayoutWidth: number;
+
   // A reference to a parent DOM element - when you create DOM Nodes, add them to this one.
   public readonly parentElement: HTMLElement;
 
@@ -61,6 +63,7 @@ export default class ScrollableDOMElement extends Node {
    * @param width
    */
   public setLayoutWidth( width: number ): void {
+    this.currentLayoutWidth = width;
     this.layoutElement.style.width = width + 'px';
   }
 
