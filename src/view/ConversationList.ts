@@ -42,10 +42,22 @@ export default class ConversationList extends ScrollableDOMElement {
       // Add the button to the front of the conversation parent
       conversationParent.insertBefore( buttonElement.domElement, conversationParent.firstChild );
 
+      // Makes the button look selected for the selected conversation.
+      const activeConversationListener = ( activeConversation: Conversation | null ) => {
+        if ( activeConversation === conversation ) {
+          buttonElement.domElement.style.border = `1px solid ${Constants.TEXT_COLOR}`;
+        }
+        else {
+          buttonElement.domElement.style.border = 'none';
+        }
+      }
+      model.activeConversationProperty.link( activeConversationListener );
+
       const removalListener = ( removedConversation: Conversation ) => {
         if ( conversation === removedConversation ) {
           conversationParent.removeChild( buttonElement.domElement );
           model.conversations.removeItemRemovedListener( removalListener );
+          model.activeConversationProperty.unlink( activeConversationListener );
         }
       };
 

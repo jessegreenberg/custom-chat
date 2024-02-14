@@ -7,6 +7,7 @@ import QueryParameters from '../QueryParameters.ts';
 import Message from '../model/Message.ts';
 import LoadingIcon from './LoadingIcon.ts';
 import ConversationList from './ConversationList.ts';
+import EditConversationControls from './EditConversationControls.ts';
 
 export default class ChatView extends Node {
 
@@ -15,6 +16,7 @@ export default class ChatView extends Node {
   private readonly messageListView: MessageListView;
   private readonly loadingIcon: LoadingIcon;
   private readonly conversationList: ConversationList;
+  private readonly editConversationControls: EditConversationControls;
 
   private availableWidth = 0;
   private availableHeight = 0;
@@ -74,11 +76,18 @@ export default class ChatView extends Node {
     this.conversationList = new ConversationList( model );
     this.domLayer.addChild( this.conversationList );
 
+    this.editConversationControls = new EditConversationControls( model );
+    this.domLayer.addChild( this.editConversationControls );
+
     this.messageListView.layoutEmitter.addListener( () => {
       this.layout( this.availableWidth, this.availableHeight );
     } );
 
     this.conversationList.layoutEmitter.addListener( () => {
+      this.layout( this.availableWidth, this.availableHeight );
+    } );
+
+    this.editConversationControls.layoutEmitter.addListener( () => {
       this.layout( this.availableWidth, this.availableHeight );
     } );
 
@@ -123,7 +132,9 @@ export default class ChatView extends Node {
     this.conversationList.left = 50;
     this.conversationList.top = 50;
 
-    this.conversationList.setScrollHeight( height - 100 );
+    this.conversationList.setScrollHeight( height - this.editConversationControls.height - 100 );
+
+    this.editConversationControls.centerTop = this.conversationList.centerBottom;
   }
 
   step( dt: number ): void {

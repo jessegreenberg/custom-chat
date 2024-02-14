@@ -32,8 +32,9 @@ export default class ChatModel {
 
     // If the active conversation changes, update the messages
     this.activeConversationProperty.link( activeConversation => {
+      this.messages.clear();
+
       if ( activeConversation ) {
-        this.messages.clear();
         this.messages.addAll( activeConversation.messages );
       }
     } );
@@ -51,6 +52,13 @@ export default class ChatModel {
     const newConversation = new Conversation( name, createObservableArray() );
     this.conversations.push( newConversation );
     this.activeConversationProperty.value = newConversation;
+  }
+
+  deleteActiveConversation(): void {
+    if ( this.activeConversationProperty.value ) {
+      this.conversations.remove( this.activeConversationProperty.value );
+      this.activateConversation( this.conversations[ this.conversations.length - 1 ] || null );
+    }
   }
 
   /**
@@ -90,6 +98,10 @@ export default class ChatModel {
    * Add a message to the chat.
    */
   public addMessage( message: Message ): void {
+    if ( !this.activeConversationProperty.value ) {
+      this.createNewConversation();
+    }
+
     this.messages.push( message );
 
     // Whenever a new message is added, save the state so it will be remembered.

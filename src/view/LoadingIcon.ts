@@ -13,7 +13,7 @@ export default class LoadingIcon extends Node {
     const circleRadius = 3; // radius of each inner circle
 
     const loadingShape = new Shape();
-    for ( let i = 0; i < 6; i++ ) {
+    for ( let i = 0; i < 8; i++ ) {
       const x = fullRadius * Math.cos( i * Math.PI / 4 );
       const y = fullRadius * Math.sin( i * Math.PI / 4 );
       loadingShape.moveTo( x, y );
@@ -30,6 +30,6 @@ export default class LoadingIcon extends Node {
     this.elapsedTime += dt;
 
     // Rotate the loading icon by the elapsed time
-    this.rotation = this.elapsedTime * 4;
+    this.rotation = this.elapsedTime * 2.5;
   }
 }
