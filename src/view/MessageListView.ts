@@ -4,6 +4,10 @@ import Constants from '../Constants.ts';
 import StyledButton from './StyledButton.ts';
 import ScrollableDOMElement from './ScrollableDOMElement.ts';
 
+// Markdown it node module seems incompatible with vite - so we are using a cdn for now
+// @ts-ignore
+const markdownIt = window.markdownit();
+
 export default class MessageListView extends ScrollableDOMElement {
 
   private readonly messageElements: HTMLElement[] = [];
@@ -20,28 +24,19 @@ export default class MessageListView extends ScrollableDOMElement {
       labelElement.style.display = 'block';
       this.parentElement.appendChild( labelElement );
 
+      // The content of the message, outlined with a boarder. A cursor to indicate it is selectable
       const messageElement = document.createElement( 'div' );
-      messageElement.style.margin = '0 auto 20px';
+      messageElement.style.marginLeft = '10px';
+      messageElement.style.marginRight = '10px';
       messageElement.style.border = '1px solid #f9f9f9';
       messageElement.style.borderRadius = '10px';
-      messageElement.style.padding = '10px';
+      messageElement.style.padding = '15px';
       messageElement.style.cursor = 'text';
       this.styleElement( messageElement );
 
       this.messageElements.push( messageElement );
 
-      // The content of the message, outlined with a boarder. A cursor to indicate it is selectable
-      const messageBlocks = this.splitMessageIntoBlocks( message.string );
-
-      messageBlocks.map( block => {
-        let element = block.type === 'code' ? document.createElement( 'pre' ) : document.createElement( 'p' );
-
-        element.style.color = block.type === 'code' ? Constants.TEXT_COLOR_DARKER : Constants.TEXT_COLOR;
-
-        element.textContent = block.content;
-        element.style.marginTop = '0';
-        messageElement.appendChild( element );
-      } );
+      messageElement.innerHTML = markdownIt.render( message.string );
 
       // if the message is from the bot, add a small play button to speak it
       if ( message.source === 'bot' ) {
@@ -127,58 +122,18 @@ export default class MessageListView extends ScrollableDOMElement {
     } );
   }
 
-
-  private splitMessageIntoBlocks( message: string ): { type: 'code' | 'message', content: string }[] {
-
-    // Use a regex that matches the entire code block, including the language specifier, but only captures the code
-    const codeBlockRegex = /```[^\n]*\n([\s\S]*?)```/g;
-    const result: { type: 'code' | 'message', content: string }[] = [];
-    let lastIndex = 0;
-
-    // Find each code block and extract the content before and the code itself
-    // @ts-ignore
-    message.replace( codeBlockRegex, ( match, code, index ) => {
-      // Add the text before the code block, if any
-      if ( index > lastIndex ) {
-        const content = message.substring( lastIndex, index ).trim();
-        if ( content.length > 0 ) {
-          result.push( { type: 'message', content: content } );
-        }
-      }
-
-      // Add the code block itself, without the language specifier
-      result.push( { type: 'code', content: code.trim() } );
-      lastIndex = index + match.length;
-    } );
-
-    // Add any remaining text after the last code block
-    if ( lastIndex < message.length ) {
-      const content = message.substring( lastIndex ).trim();
-      if ( content.length > 0 ) {
-        result.push( { type: 'message', content: content } );
-      }
-    }
-
-    return result;
-  }
-
   /**
    * Style text content so that it looks nice in the chat.
    */
   private styleElement( element: HTMLElement ): void {
-    element.style.fontSize = Constants.FONT.size;
-    element.style.fontFamily = Constants.FONT.family;
     element.style.color = Constants.TEXT_COLOR;
-    element.style.display = 'inline-block';
-    element.style.width = `${ this.currentLayoutWidth - Constants.UI_MARGIN }px`;
-    element.style.whiteSpace = 'pre-wrap'; // to preserve new-lines
   }
 
   public override setLayoutWidth( width: number ) {
     super.setLayoutWidth( width );
 
     this.messageElements.forEach( messageElement => {
-      messageElement.style.width = width - Constants.UI_MARGIN + 'px';
+      messageElement.style.width = width - Constants.UI_MARGIN * 2 + 'px';
     } );
   }
 }

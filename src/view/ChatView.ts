@@ -18,8 +18,6 @@ export default class ChatView extends Node {
   private readonly conversationList: ConversationList;
   private readonly editConversationControls: EditConversationControls;
 
-  private processingLayout = false;
-
   private availableWidth = 0;
   private availableHeight = 0;
 
@@ -156,8 +154,6 @@ export default class ChatView extends Node {
 
     this.editConversationControls.centerX = this.conversationList.centerX;
     this.editConversationControls.centerY = this.chatInput.centerY;
-
-    this.processingLayout = false;
   }
 
 

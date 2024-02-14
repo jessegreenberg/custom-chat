@@ -6,7 +6,7 @@ import _ from 'lodash';
 export default class ScrollableDOMElement extends Node {
   public readonly layoutEmitter: Emitter = new Emitter();
 
-  public currentLayoutWidth: number;
+  public currentLayoutWidth = 0;
 
   // A reference to a parent DOM element - when you create DOM Nodes, add them to this one.
   public readonly parentElement: HTMLElement;

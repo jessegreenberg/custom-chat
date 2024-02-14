@@ -24,3 +24,14 @@ html, body {
 .scrollable::-webkit-scrollbar-thumb:active {
   background-color: #333; /* set a different color when clicked */
 }
+
+/*Make lists have no padding or margin, which looks much better in generated markdown*/
+ul, ol {
+  padding: 10px;
+  margin: 10px;
+}
+
+/*Extra padding for code blocks*/
+pre {
+  padding-left: 30px;
+}

@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 export default class EditConversationControls extends CustomDOMNode {
   private readonly deleteConversationButton: StyledButton;
-  private readonly renameConversationButton: StyledButton;
+  // private readonly renameConversationButton: StyledButton;
 
   public constructor( model: ChatModel, providedOptions?: IntentionalAny ) {
 
