@@ -18,6 +18,8 @@ export default class ChatView extends Node {
   private readonly conversationList: ConversationList;
   private readonly editConversationControls: EditConversationControls;
 
+  private processingLayout = false;
+
   private availableWidth = 0;
   private availableHeight = 0;
 
@@ -79,17 +81,23 @@ export default class ChatView extends Node {
     this.editConversationControls = new EditConversationControls( model );
     this.domLayer.addChild( this.editConversationControls );
 
-    this.messageListView.layoutEmitter.addListener( () => {
+    const messageListLayoutListener = () => {
       this.layout( this.availableWidth, this.availableHeight );
-    } );
+      this.messageListView.layoutEmitter.removeListener( messageListLayoutListener );
+    }
+    this.messageListView.layoutEmitter.addListener( messageListLayoutListener );
 
-    this.conversationList.layoutEmitter.addListener( () => {
+    const conversationListLayoutListener = () => {
       this.layout( this.availableWidth, this.availableHeight );
-    } );
+      this.conversationList.layoutEmitter.removeListener( conversationListLayoutListener );
+    }
+    this.conversationList.layoutEmitter.addListener( conversationListLayoutListener );
 
-    this.editConversationControls.layoutEmitter.addListener( () => {
+    const editConversationControlsLayoutListener = () => {
       this.layout( this.availableWidth, this.availableHeight );
-    } );
+      this.editConversationControls.layoutEmitter.removeListener( editConversationControlsLayoutListener );
+    };
+    this.editConversationControls.layoutEmitter.addListener( editConversationControlsLayoutListener );
 
     // DEBUG - if in debug mode, add some testing messages to observe layout
     if ( QueryParameters.debug ) {
@@ -128,13 +136,18 @@ export default class ChatView extends Node {
 
     this.messageListView.centerX = width / 2;
     this.messageListView.top = 50;
+    this.messageListView.setScrollHeight( height - this.chatInput.height - this.loadingIcon.height - 150 );
+    this.messageListView.scrollToBottom();
 
     this.conversationList.left = 50;
     this.conversationList.top = 50;
 
-    this.conversationList.setScrollHeight( height - this.editConversationControls.height - 100 );
+    this.conversationList.setScrollHeight( this.chatInput.top - 50 );
 
-    this.editConversationControls.centerTop = this.conversationList.centerBottom;
+    this.editConversationControls.centerX = this.conversationList.centerX;
+    this.editConversationControls.centerY = this.chatInput.centerY;
+
+    this.processingLayout = false;
   }
 
   step( dt: number ): void {
