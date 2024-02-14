@@ -39,9 +39,7 @@ export default class ChatModel {
       }
     } );
 
-    // Upon loading, create a new conversation
-    // TODO: Move to a load function?
-    this.createNewConversation();
+    this.load();
   }
 
   /**
@@ -61,8 +59,14 @@ export default class ChatModel {
    */
   public saveMessagesToConversation(): void {
     if ( this.activeConversationProperty.value ) {
-      this.activeConversationProperty.value.messages.clear();
-      this.activeConversationProperty.value.messages.addAll( this.messages );
+
+      // NOTE: Do not let Conversations use the same array is the messages array. This will cause the messages to
+      // be deleted when we clear the conversation here.
+      this.activeConversationProperty.value.messages.length = 0;
+
+      this.messages.forEach( message => {
+        this.activeConversationProperty.value!.messages.push( message );
+      } );
     }
   }
 
@@ -88,6 +92,9 @@ export default class ChatModel {
    */
   public addMessage( message: Message ): void {
     this.messages.push( message );
+
+    // Whenever a new message is added, save the state so it will be remembered.
+    this.save();
   }
 
   /**
@@ -203,5 +210,44 @@ export default class ChatModel {
     catch( error ) {
       return resolveError();
     }
+  }
+
+  public load() {
+
+    const jsonString = localStorage.getItem( 'customChat' );
+    if ( jsonString ) {
+      const modelData = JSON.parse( jsonString );
+
+      // load the conversations
+      this.conversations.clear();
+      modelData.conversations.forEach( ( conversationData: { name: string, messages: Message[] } ) => {
+        const conversation = new Conversation( conversationData.name, createObservableArray() );
+        conversationData.messages.forEach( ( message: Message ) => {
+          conversation.messages.push( message );
+        } );
+        this.conversations.push( conversation );
+      } );
+
+      // load the active conversation
+      this.activeConversationProperty.value = this.conversations[ 0 ];
+    }
+
+    // No matter what, we should have at least one conversation
+    this.createNewConversation();
+  }
+
+  public save() {
+
+    // save the current messages to the active conversation before saving
+    this.saveMessagesToConversation();
+
+    // serialize the model to JSON
+    const modelData = {
+      conversations: this.conversations.map( conversation => { return { name: conversation.name, messages: conversation.messages }; } )
+    };
+
+    // save modelData to local storage
+    const jsonString = JSON.stringify( modelData );
+    localStorage.setItem( 'customChat', jsonString );
   }
 }

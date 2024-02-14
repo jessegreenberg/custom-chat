@@ -1,11 +1,10 @@
 import Message from './Message.ts';
-import { ObservableArray } from 'phet-lib/axon';
 
 export default class Conversation {
-  public readonly messages: ObservableArray<Message>;
+  public readonly messages: Message[];
   public readonly name: string;
 
-  public constructor( name: string, messages: ObservableArray<Message> ) {
+  public constructor( name: string, messages: Message[] ) {
     this.name = name;
     this.messages = messages;
   }
