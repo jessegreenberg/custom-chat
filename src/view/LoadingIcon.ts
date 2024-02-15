@@ -6,6 +6,9 @@ import { IntentionalAny } from '../types';
 export default class LoadingIcon extends Node {
   private elapsedTime = 0;
 
+  private readonly loadingNode: Path;
+  private readonly darkLoadingNode: Path;
+
   public constructor( providedOptions?: IntentionalAny ) {
     super( providedOptions );
 
@@ -20,16 +23,22 @@ export default class LoadingIcon extends Node {
       loadingShape.circle( x, y, circleRadius );
     }
 
-    const loadingNode = new Path( loadingShape, {
+    this.loadingNode = new Path( loadingShape, {
       fill: Constants.TEXT_COLOR
     } );
-    this.addChild( loadingNode );
+    this.addChild( this.loadingNode );
+
+    this.darkLoadingNode = new Path( loadingShape, {
+      fill: Constants.BACKGROUND_COLOR,
+      scale: 0.9
+    } );
+    this.addChild( this.darkLoadingNode );
   }
 
   step( dt: number ): void {
     this.elapsedTime += dt;
 
     // Rotate the loading icon by the elapsed time
-    this.rotation = this.elapsedTime * 2.5;
+    this.loadingNode.rotation = this.elapsedTime * 0.6;
   }
 }
