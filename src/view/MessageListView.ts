@@ -32,6 +32,8 @@ export default class MessageListView extends ScrollableDOMElement {
       messageElement.style.borderRadius = '10px';
       messageElement.style.padding = '15px';
       messageElement.style.cursor = 'text';
+      messageElement.style.fontSize = Constants.FONT.size;
+      messageElement.style.fontFamily = Constants.FONT.family;
       this.styleElement( messageElement );
 
       this.messageElements.push( messageElement );
@@ -41,19 +43,56 @@ export default class MessageListView extends ScrollableDOMElement {
       // if the message is from the bot, add a small play button to speak it
       if ( message.source === 'bot' ) {
 
+        // an object with audio and contentType
+        let audioData: { audio: string, contentType: string } | null = null;
+        let webAudio: HTMLAudioElement | null = null;
+
         const playButton = new StyledButton( {
           label: '▶',
           fontSize: '20px',
           width: '30px',
           height: '30px',
-          onclick: () => {
-            model.getSpeechFromServer( message.string ).then( ( data: { audio: string, contentType: string } ) => {
-              const audioBlob = new Blob( [ new Uint8Array( atob( data.audio ).split( '' ).map( char => char.charCodeAt( 0 ) ) ) ], { type: data.contentType } );
-              const audioUrl = URL.createObjectURL( audioBlob );
-              const audio = new Audio( audioUrl );
-              audio.play();
-              audio.onended = () => URL.revokeObjectURL( audioUrl );
-            } );
+          onclick: async () => {
+
+            // Only request once per message, save the result for future clicks
+            if ( audioData === null ) {
+
+              playButton.setElementEnabled( false );
+              const data = await model.getSpeechFromServer( message.string );
+              playButton.setElementEnabled( true );
+
+              if ( data.audio ) {
+                audioData = data;
+              }
+            }
+
+            if ( audioData ) {
+
+              // If the audio is already playing, pause it
+              if ( webAudio ) {
+                webAudio.pause();
+                webAudio = null;
+
+                playButton.setLabel( '▶' );
+              }
+              else {
+
+                // Convert the Base64 string back to an array buffer
+                const audioBlob = new Blob( [ new Uint8Array( atob( audioData.audio ).split( '' ).map( char => char.charCodeAt( 0 ) ) ) ], { type: audioData.contentType } );
+                const audioUrl = URL.createObjectURL( audioBlob );
+
+                webAudio = new Audio( audioUrl );
+                webAudio.play();
+
+                playButton.setLabel( '||' );
+
+                // Revoke the object URL to free up resources after playing
+                webAudio.onended = () => {
+                  URL.revokeObjectURL( audioUrl )
+                  playButton.setLabel( '▶' );
+                };
+              }
+            }
           }
         } );
 
@@ -65,37 +104,6 @@ export default class MessageListView extends ScrollableDOMElement {
         playButton.domElement.style.marginBottom = '0px';
         playButton.domElement.style.marginLeft = 'auto';
 
-        // an object with audio and contentType
-        let audioData: { audio: string, contentType: string } | null = null;
-        let webAudio: HTMLAudioElement | null = null;
-
-        playButton.domElement.onclick = async () => {
-
-          // Only request once per message, save the result for future clicks
-          if ( audioData === null ) {
-            const data = await model.getSpeechFromServer( message.string );
-
-            if ( data.audio ) {
-              audioData = data;
-            }
-          }
-
-          if ( audioData ) {
-
-            // Convert the Base64 string back to an array buffer
-            const audioBlob = new Blob( [ new Uint8Array( atob( audioData.audio ).split( '' ).map( char => char.charCodeAt( 0 ) ) ) ], { type: audioData.contentType } );
-            const audioUrl = URL.createObjectURL( audioBlob );
-            if ( webAudio ) {
-              webAudio.pause();
-              webAudio = null;
-            }
-            webAudio = new Audio( audioUrl );
-            webAudio.play();
-
-            // Revoke the object URL to free up resources after playing
-            webAudio.onended = () => URL.revokeObjectURL( audioUrl );
-          }
-        };
         messageElement.appendChild( playButton.domElement );
       }
 

@@ -107,6 +107,9 @@ export default class ChatView extends Node {
     this.availableWidth = width;
     this.availableHeight = height;
 
+    const chatWidth = width - this.conversationList.width - 3 * Constants.UI_MARGIN;
+    const chatCenter = this.conversationList.right + Constants.UI_MARGIN + chatWidth / 2;
+
     this.chatInput.centerX = chatCenter;
     this.chatInput.bottom = height - 50;
 
@@ -140,8 +143,7 @@ export default class ChatView extends Node {
     // of the UI components
     const chatWidth = width - this.conversationList.width - 3 * Constants.UI_MARGIN;
     const chatCenter = this.conversationList.right + Constants.UI_MARGIN + chatWidth / 2;
-    const columns = Math.floor( chatWidth / Constants.CHARACTER_WIDTH );
-    this.chatInput.setCols( columns );
+    this.chatInput.setWidth( chatWidth );
 
     this.chatInput.centerX = chatCenter;
     this.chatInput.bottom = height - 50;

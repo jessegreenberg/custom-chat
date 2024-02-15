@@ -105,7 +105,11 @@ app.post( '/api/openai/speak', async ( req, res ) => {
   const mp3 = await openai.audio.speech.create( {
     model: 'tts-1',
     voice: 'nova',
-    input: text
+    input: text,
+
+    // A value from 0.25 to 4. It seems like OpenAI just speeds up the audio,
+    // faster values don't sound like a natural human speaking quickly
+    speed: 1.1
   } );
 
 

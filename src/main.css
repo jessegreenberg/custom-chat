@@ -7,31 +7,37 @@ html, body {
 /* Define the scrollbar track */
 ::-webkit-scrollbar {
   border-radius: 10px; /* set the border radius to make it rounded */
-  background-color: #f1f1f1; /* set the background color */
+  background-color: #171717; /* set the background color so that the track is hidden */
 }
 
 /* Define the scrollbar thumb */
 .scrollable::-webkit-scrollbar-thumb {
   border-radius: 10px; /* set the border radius to make it rounded */
-  background-color: #888; /* set the color of the thumb */
+  background-color: #555; /* set the color of the thumb */
 }
 
 /* Optionally, you can style the scrollbar when hovered or active */
 .scrollable::-webkit-scrollbar-thumb:hover {
-  background-color: #555; /* set a different color when hovered */
+  background-color: #c0c0c0; /* set a different color when hovered */
 }
 
 .scrollable::-webkit-scrollbar-thumb:active {
-  background-color: #333; /* set a different color when clicked */
+  background-color: #555; /* set a different color when clicked */
 }
 
 /*Make lists have no padding or margin, which looks much better in generated markdown*/
 ul, ol {
-  padding: 10px;
-  margin: 10px;
+  padding-left: 10px;
+  margin-left: 10px;
 }
 
 /*Extra padding for code blocks*/
 pre {
   padding-left: 30px;
+}
+
+code {
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #c0c0c0;
 }

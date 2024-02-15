@@ -6,6 +6,10 @@ import _ from 'lodash';
 export default class StyledButton {
   public readonly domElement: HTMLButtonElement;
 
+  private readonly backgroundColor: string;
+
+  private isEnabled = true;
+
   public constructor( providedOptions?: IntentionalAny ) {
 
     const options = _.merge( {
@@ -19,6 +23,8 @@ export default class StyledButton {
 
       onclick: () => {}
     }, providedOptions );
+
+    this.backgroundColor = options.backgroundColor;
 
     // A label that indicates who wrote the message
     this.domElement = document.createElement( 'button' );
@@ -40,10 +46,14 @@ export default class StyledButton {
 
     // make it brighter when hovered over
     this.domElement.addEventListener( 'mouseenter', () => {
-      this.domElement.style.backgroundColor = Constants.BACKGROUND_COLOR_OVER;
+      if ( this.isEnabled ) {
+        this.domElement.style.backgroundColor = Constants.BACKGROUND_COLOR_OVER;
+      }
     } );
     this.domElement.addEventListener( 'mouseleave', () => {
-      this.domElement.style.backgroundColor = options.backgroundColor;
+      if ( this.isEnabled ) {
+        this.domElement.style.backgroundColor = options.backgroundColor;
+      }
     } );
 
     this.domElement.onclick = options.onclick;
@@ -52,5 +62,19 @@ export default class StyledButton {
     this.domElement.style.border = 'none';
     this.domElement.style.outline = 'none';
     this.domElement.style.borderRadius = '3px';
+  }
+
+  public setLabel( label: string ): void {
+    this.domElement.textContent = label;
+  }
+
+  public setElementEnabled( enabled: boolean ): void {
+    this.isEnabled = enabled;
+    this.domElement.disabled = !enabled;
+
+
+    // make the button look disabled
+    this.domElement.style.backgroundColor = enabled ? this.backgroundColor : Constants.DISABLED_COLOR;
+    this.domElement.style.cursor = enabled ? 'pointer' : 'default';
   }
 }

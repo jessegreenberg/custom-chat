@@ -21,8 +21,11 @@ class TextInput extends Node {
 
       // If true, this will be a text area instead
       multiline: false,
+
+      // How many rows this text area should use.
+      // Note: I don't have cols here because width seems more accurate for layout.
+      // TODO: Consider setting height directly instead of rows.
       rows: 1,
-      cols: 50,
 
       backgroundColor: 'white',
       color: 'black',
@@ -74,7 +77,6 @@ class TextInput extends Node {
     if ( options.multiline ) {
       domElement = document.createElement( 'textarea' );
       domElement.rows = options.rows;
-      domElement.cols = options.cols;
       domElement.style.resize = 'none';
     }
     else {
@@ -202,13 +204,8 @@ class TextInput extends Node {
     this.valueChangedEmitter.emit( this.getElementValue() );
   }
 
-  /**
-   * Sets the cols value on the dom element.
-   */
-  public setCols( cols: number ): void {
-    if ( this.domElement instanceof HTMLTextAreaElement ) {
-      this.domElement.cols = cols;
-    }
+  public setWidth( width: number ): void {
+    this.domElement.style.width = width + 'px';
   }
 
   /**

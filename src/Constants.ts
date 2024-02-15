@@ -16,6 +16,8 @@ export default class Constants {
   public static readonly BACKGROUND_COLOR_LIGHTER: string = '#2b2b2b';
   public static readonly BACKGROUND_COLOR_OVER: string = '#3b3b3b';
 
+  public static readonly DISABLED_COLOR: string = '#A0A0A0';
+
   public static readonly TEXT_COLOR: string = '#f9f9f9';
   public static readonly TEXT_COLOR_DARKER: string = '#c0c0c0';
 
