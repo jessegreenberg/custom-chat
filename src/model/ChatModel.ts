@@ -97,14 +97,13 @@ export default class ChatModel {
   /**
    * Add a message to the chat.
    */
-  public addMessage( message: Message ): void {
+  private addMessage( message: Message ): void {
     if ( !this.activeConversationProperty.value ) {
       this.createNewConversation();
     }
 
     this.messages.push( message );
 
-    // Whenever a new message is added, save the state so it will be remembered.
     this.save();
   }
 
@@ -132,6 +131,44 @@ export default class ChatModel {
     // Send the message to the server
     const returnMessage = await this.sendDataToServer();
     this.addMessage( new Message( returnMessage, 'bot', new Date().getTime() ) );
+
+    // Once we have two messages, generate a title for the conversation
+    if ( this.messages.length === 2 && this.activeConversationProperty.value ) {
+      this.activeConversationProperty.value.nameProperty.value = await this.summarizeForTitle( message );
+      this.save();
+    }
+  }
+
+  /**
+   * Makea request with OpenAI to create a title for the conversation.
+   */
+  public async summarizeForTitle(): Promise<string> {
+    try {
+      const data = {
+        messages: this.messages
+      };
+
+      const response = await fetch( 'http://localhost:3000/api/openai/summarizeTitle', {
+        method: 'POST', // or 'PUT'
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data ) // convert the JavaScript object to a JSON string
+      } );
+
+      const responseData = await response.json(); // Parse the JSON response
+
+      // if we get a 500 error, we should return an error message
+      if ( response.status === 500 ) {
+        return 'There was an error with the request.';
+      }
+      else {
+        return responseData.message.content;
+      }
+    }
+    catch( error ) {
+      return 'There was an error with the request.';
+    }
   }
 
   /**
@@ -244,7 +281,7 @@ export default class ChatModel {
     }
 
     if ( this.conversations.length === 0 ) {
-      // this.createNewConversation();
+      this.createNewConversation();
     }
   }
 
@@ -255,7 +292,7 @@ export default class ChatModel {
 
     // serialize the model to JSON
     const modelData = {
-      conversations: this.conversations.map( conversation => { return { name: conversation.name, messages: conversation.messages }; } )
+      conversations: this.conversations.map( conversation => conversation.save() )
     };
 
     // save modelData to local storage

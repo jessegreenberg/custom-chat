@@ -8,13 +8,14 @@ export default class ConversationList extends ScrollableDOMElement {
 
   public constructor( model: ChatModel ) {
     super( {
-      width: '180px'
+      width: '225px'
     } );
 
     this.parentElement.style.textAlign = 'center';
 
     const conversationButton = new StyledButton( {
       label: 'New Conversation',
+      width: '190px',
       onclick: () => {
         model.createNewConversation();
       }
@@ -33,11 +34,18 @@ export default class ConversationList extends ScrollableDOMElement {
 
     const addConversation = ( conversation: Conversation ) => {
       const buttonElement = new StyledButton( {
-        label: conversation.name,
+        label: conversation.nameProperty.value,
+        width: '190px',
         onclick: () => {
           model.activateConversation( conversation );
         }
       } );
+
+      const nameListener = ( name: string ) => {
+        buttonElement.domElement.textContent = name;
+        buttonElement.domElement.title = name;
+      };
+      conversation.nameProperty.link( nameListener );
 
       // Add the button to the front of the conversation parent
       conversationParent.insertBefore( buttonElement.domElement, conversationParent.firstChild );
@@ -58,6 +66,7 @@ export default class ConversationList extends ScrollableDOMElement {
           conversationParent.removeChild( buttonElement.domElement );
           model.conversations.removeItemRemovedListener( removalListener );
           model.activeConversationProperty.unlink( activeConversationListener );
+          conversation.nameProperty.unlink( nameListener );
         }
       };
 

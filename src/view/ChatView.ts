@@ -3,8 +3,6 @@ import ChatModel from '../model/ChatModel.ts';
 import Constants from '../Constants.ts';
 import TextInput from './TextInput.ts';
 import MessageListView from './MessageListView.ts';
-import QueryParameters from '../QueryParameters.ts';
-import Message from '../model/Message.ts';
 import LoadingIcon from './LoadingIcon.ts';
 import ConversationList from './ConversationList.ts';
 import EditConversationControls from './EditConversationControls.ts';
@@ -96,27 +94,6 @@ export default class ChatView extends Node {
       this.layoutWithoutResizing();
     };
     this.editConversationControls.layoutEmitter.addListener( editConversationControlsLayoutListener );
-
-    // DEBUG - if in debug mode, add some testing messages to observe layout
-    if ( QueryParameters.debug ) {
-      model.addMessage( new Message( 'Message 1', 'user', Date.now() ) );
-      model.addMessage( new Message( 'Message 2', 'bot', Date.now() ) );
-      model.addMessage( new Message( 'Message 3', 'user', Date.now() ) );
-      model.addMessage( new Message( 'Message 4', 'bot', Date.now() ) );
-
-      const testOutput =
-        `
-         Certainly! Here is a hello world program in JavaScript:
-
- \`\`\`javascript
- console.log( 'hello!' )
- \`\`\`
-
- I hope this was helpful!
-        `
-
-      model.addMessage( new Message( testOutput, 'bot', Date.now() ) );
-    }
   }
 
   /**
@@ -129,11 +106,6 @@ export default class ChatView extends Node {
 
     this.availableWidth = width;
     this.availableHeight = height;
-
-    // The width of the chat area - the full width minus the conversation list and some margin on each side
-    // of the UI components
-    const chatWidth = width - this.conversationList.width - 3 * Constants.UI_MARGIN;
-    const chatCenter = this.conversationList.right + Constants.UI_MARGIN + chatWidth / 2;
 
     this.chatInput.centerX = chatCenter;
     this.chatInput.bottom = height - 50;

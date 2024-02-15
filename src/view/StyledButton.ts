@@ -38,14 +38,13 @@ export default class StyledButton {
     this.domElement.style.marginBottom = '2px';
     this.domElement.style.cursor = 'pointer';
 
-
     // make it brighter when hovered over
-    this.domElement.onmouseenter = () => {
+    this.domElement.addEventListener( 'mouseenter', () => {
       this.domElement.style.backgroundColor = Constants.BACKGROUND_COLOR_OVER;
-    };
-    this.domElement.onmouseleave = () => {
+    } );
+    this.domElement.addEventListener( 'mouseleave', () => {
       this.domElement.style.backgroundColor = options.backgroundColor;
-    };
+    } );
 
     this.domElement.onclick = options.onclick;
 

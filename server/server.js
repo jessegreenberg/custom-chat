@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import fs from 'fs';
 import OpenAI from 'openai';
 import path from 'path';
-import fs from 'fs';
 
 // configure environment variables
 dotenv.config();
@@ -62,6 +62,43 @@ app.post( '/api/openai', async ( req, res ) => {
   }
 } );
 
+app.post( '/api/openai/summarizeTitle', async ( req, res ) => {
+  const previousMessages = req.body.messages; // array of Message objects
+
+  const formattedMessages = previousMessages.map( message => {
+    return {
+
+      // roles can be 'user' or 'assistant' or 'system' (for special messages like the first message)
+      role: message.source === 'user' ? 'user' : 'assistant',
+      content: message.string
+    };
+  } );
+
+  const leadingRequest = {
+    role: 'system',
+    content: `The following are messages between a user and a chat-bot.`
+  };
+  formattedMessages.push( leadingRequest );
+
+  const finalRequest = {
+    role: 'system',
+    content: `Can you please take all of the above messages and give me just an appropriate title for the conversation? Just give the one or two word name for the conversation.`
+  };
+  formattedMessages.push( finalRequest );
+
+  try {
+    const completion = await openai.chat.completions.create( {
+      model: 'gpt-3.5-turbo', // faster, cheaper
+      messages: formattedMessages
+    } );
+    res.json( completion.choices[ 0 ] );
+  }
+  catch( error ) {
+    console.error( 'Error:', error );
+    res.status( 500 ).json( { error: 'Something went wrong' } );
+  }
+} );
+
 app.post( '/api/openai/speak', async ( req, res ) => {
   const { text } = req.body;
 
@@ -74,7 +111,7 @@ app.post( '/api/openai/speak', async ( req, res ) => {
 
   // generate a timestamped name for the file
   const now = new Date();
-  const timestamp = now.toISOString().replace(/T/, '_').replace(/\..+/, '').replace(/:/g, '-');
+  const timestamp = now.toISOString().replace( /T/, '_' ).replace( /\..+/, '' ).replace( /:/g, '-' );
   const speechFile = path.resolve( `./saved-speech/${timestamp}.mp3` );
 
   // save the audio just in case you want to use it later
