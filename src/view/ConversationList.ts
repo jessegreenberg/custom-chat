@@ -4,14 +4,19 @@ import Constants from '../Constants.ts';
 import Conversation from '../model/Conversation.ts';
 import StyledButton from './StyledButton.ts';
 
-const WIDTH = '210px';
+// Width for the overall conversation
+const LIST_WIDTH = '225px';
+
+// Width for each button, smaller so that there is space between the buttons and the edge of the list
+// TODO: This should be supported automatically by ScrollableDOMElement
+const WIDTH = '200px';
 const HEIGHT = '50px';
 
 export default class ConversationList extends ScrollableDOMElement {
 
   public constructor( model: ChatModel ) {
     super( {
-      width: '225px'
+      width: LIST_WIDTH,
     } );
 
     this.parentElement.style.textAlign = 'center';

@@ -11,23 +11,22 @@ const CHARACTER_WIDTH = dummyText.width;
 
 export default class Constants {
 
-  public static readonly BACKGROUND_COLOR: string = '#171717';
-  public static readonly BACKGROUND_COLOR_DARKER: string = '#0d0d0d';
-  public static readonly BACKGROUND_COLOR_LIGHTER: string = '#2b2b2b';
-  public static readonly BACKGROUND_COLOR_OVER: string = '#3b3b3b';
+  public static readonly BACKGROUND_COLOR: string = '#303030'; // Deep gray, similar to Material-UI dark background
+  public static readonly BACKGROUND_COLOR_DARKER: string = '#212121'; // Even deeper gray for contrasted backdrops
+  public static readonly BACKGROUND_COLOR_LIGHTER: string = '#424242'; // Lighter gray for cards, dialogs, etc.
+  public static readonly BACKGROUND_COLOR_OVER: string = '#616161'; // Slightly lighter for hover and active states
 
-  public static readonly DISABLED_COLOR: string = '#A0A0A0';
+  public static readonly DISABLED_COLOR: string = '#757575'; // Muted gray for disabled text and icons
 
-  public static readonly TEXT_COLOR: string = '#f9f9f9';
-  public static readonly TEXT_COLOR_DARKER: string = '#c0c0c0';
+  public static readonly TEXT_COLOR: string = '#E0E0E0'; // Bright, but not pure white, for main text
+  public static readonly TEXT_COLOR_DARKER: string = '#BDBDBD'; // Darker text for secondary information
 
-  public static readonly CODE_COLOR: string = '#c0c0c0';
+  public static readonly CODE_COLOR: string = '#80CBC4'; // Soft teal for code, inspired by Material-UI's palette
 
-  public static readonly SCROLLBAR_TRACK_COLOR: string = '#171717';
-  public static readonly SCROLLBAR_THUMB_COLOR: string = '#555555';
-  public static readonly SCROLLBAR_THUMB_COLOR_OVER: string = '#c0c0c0';
-  public static readonly SCROLLBAR_THUMB_COLOR_DOWN: string = '#555';
-
+  public static readonly SCROLLBAR_TRACK_COLOR: string = '#303030'; // Matching the overall background
+  public static readonly SCROLLBAR_THUMB_COLOR: string = '#6D6D6D'; // Visible without being distracting
+  public static readonly SCROLLBAR_THUMB_COLOR_OVER: string = '#9E9E9E'; // Lighter for indicated interaction
+  public static readonly SCROLLBAR_THUMB_COLOR_DOWN: string = '#9E9E9E'; // Consistent with the hover effect
 
   public static readonly FONT = FONT;
 

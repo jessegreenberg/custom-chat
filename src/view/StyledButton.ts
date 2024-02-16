@@ -20,7 +20,7 @@ export default class StyledButton {
       backgroundColor: Constants.BACKGROUND_COLOR_LIGHTER,
       width: '150px',
       height: '30px',
-
+      overflow: 'ellipsis',
       onclick: () => {}
     }, providedOptions );
 
@@ -35,14 +35,20 @@ export default class StyledButton {
     this.domElement.style.color = options.color;
     this.domElement.style.width = options.width;
     this.domElement.style.height = options.height;
-    this.domElement.style.textOverflow = 'ellipsis';
-    this.domElement.style.overflow = 'hidden';
-    this.domElement.style.whiteSpace = 'nowrap';
+
     this.domElement.style.paddingTop = '5px';
     this.domElement.style.paddingBottom = '5px';
+    this.domElement.style.paddingLeft = '10px';
+    this.domElement.style.paddingRight = '10px';
     this.domElement.style.marginTop = '2px';
     this.domElement.style.marginBottom = '2px';
     this.domElement.style.cursor = 'pointer';
+
+    if ( options.overflow === 'ellipsis' ) {
+      this.domElement.style.textOverflow = 'ellipsis';
+      this.domElement.style.overflow = 'hidden';
+      this.domElement.style.whiteSpace = 'nowrap';
+    }
 
     // make it brighter when hovered over
     this.domElement.addEventListener( 'mouseenter', () => {

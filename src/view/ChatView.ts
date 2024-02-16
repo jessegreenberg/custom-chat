@@ -114,7 +114,7 @@ export default class ChatView extends Node {
     this.chatInput.bottom = height - Constants.UI_MARGIN;
 
     this.loadingIcon.centerX = chatCenter;
-    this.loadingIcon.centerY = this.chatInput.top - Constants.UI_MARGIN;
+    this.loadingIcon.bottom = this.chatInput.top - Constants.UI_MARGIN / 2;
 
     this.welcomeText.centerX = chatCenter;
     this.welcomeText.bottom = this.chatInput.top - Constants.UI_MARGIN;

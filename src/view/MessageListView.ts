@@ -8,6 +8,8 @@ import ScrollableDOMElement from './ScrollableDOMElement.ts';
 // @ts-ignore
 const markdownIt = window.markdownit();
 
+const PADDING = 15;
+
 export default class MessageListView extends ScrollableDOMElement {
 
   private readonly messageElements: HTMLElement[] = [];
@@ -27,10 +29,10 @@ export default class MessageListView extends ScrollableDOMElement {
       // The content of the message, outlined with a boarder. A cursor to indicate it is selectable
       const messageElement = document.createElement( 'div' );
       messageElement.style.marginLeft = '10px';
-      messageElement.style.marginRight = '10px';
+      messageElement.style.marginRight = '5px';
       messageElement.style.border = '1px solid #f9f9f9';
       messageElement.style.borderRadius = '10px';
-      messageElement.style.padding = '15px';
+      messageElement.style.padding = `${PADDING}px`;
       messageElement.style.cursor = 'text';
       messageElement.style.fontSize = Constants.FONT.size;
       messageElement.style.fontFamily = Constants.FONT.family;
@@ -49,6 +51,7 @@ export default class MessageListView extends ScrollableDOMElement {
 
         const playButton = new StyledButton( {
           label: '▶',
+          overflow: 'hidden',
           fontSize: '25px',
           width: '40px',
           height: '40px',
@@ -140,8 +143,12 @@ export default class MessageListView extends ScrollableDOMElement {
   public override setLayoutWidth( width: number ) {
     super.setLayoutWidth( width );
 
+    const usableWidth = width - PADDING * 3;
     this.messageElements.forEach( messageElement => {
-      messageElement.style.width = width - Constants.UI_MARGIN * 3 + 'px';
+      messageElement.style.minWidth = usableWidth - Constants.UI_MARGIN + 'px';
+
+      // so that the message element can grow beyond the minimum width
+      messageElement.style.display = 'inline-block';
     } );
   }
 }
