@@ -21,6 +21,14 @@ export default class Constants {
   public static readonly TEXT_COLOR: string = '#f9f9f9';
   public static readonly TEXT_COLOR_DARKER: string = '#c0c0c0';
 
+  public static readonly CODE_COLOR: string = '#c0c0c0';
+
+  public static readonly SCROLLBAR_TRACK_COLOR: string = '#171717';
+  public static readonly SCROLLBAR_THUMB_COLOR: string = '#555555';
+  public static readonly SCROLLBAR_THUMB_COLOR_OVER: string = '#c0c0c0';
+  public static readonly SCROLLBAR_THUMB_COLOR_DOWN: string = '#555';
+
+
   public static readonly FONT = FONT;
 
   public static readonly CHARACTER_WIDTH = CHARACTER_WIDTH;
@@ -39,3 +47,10 @@ export default class Constants {
     color: Constants.TEXT_COLOR
   }
 }
+
+// assign constants the css style so that they can be used in the css file
+document.documentElement.style.setProperty( '--code-color', Constants.CODE_COLOR );
+document.documentElement.style.setProperty( '--scrollbar-thumb-color', Constants.SCROLLBAR_THUMB_COLOR );
+document.documentElement.style.setProperty( '--scrollbar-thumb-color-over', Constants.SCROLLBAR_THUMB_COLOR_OVER );
+document.documentElement.style.setProperty( '--scrollbar-thumb-color-down', Constants.SCROLLBAR_THUMB_COLOR_DOWN );
+document.documentElement.style.setProperty( '--scrollbar-track-color', Constants.SCROLLBAR_TRACK_COLOR );
