@@ -49,9 +49,9 @@ export default class MessageListView extends ScrollableDOMElement {
 
         const playButton = new StyledButton( {
           label: '▶',
-          fontSize: '20px',
-          width: '30px',
-          height: '30px',
+          fontSize: '25px',
+          width: '40px',
+          height: '40px',
           onclick: async () => {
 
             // Only request once per message, save the result for future clicks
@@ -101,7 +101,7 @@ export default class MessageListView extends ScrollableDOMElement {
         playButton.domElement.style.margin = 'auto';
         playButton.domElement.style.marginTop = '10px';
         playButton.domElement.style.marginRight = '0px';
-        playButton.domElement.style.marginBottom = '0px';
+        playButton.domElement.style.marginBottom = '0px'
         playButton.domElement.style.marginLeft = 'auto';
 
         messageElement.appendChild( playButton.domElement );
@@ -141,7 +141,7 @@ export default class MessageListView extends ScrollableDOMElement {
     super.setLayoutWidth( width );
 
     this.messageElements.forEach( messageElement => {
-      messageElement.style.width = width - Constants.UI_MARGIN * 2 + 'px';
+      messageElement.style.width = width - Constants.UI_MARGIN * 3 + 'px';
     } );
   }
 }

@@ -4,6 +4,9 @@ import Constants from '../Constants.ts';
 import Conversation from '../model/Conversation.ts';
 import StyledButton from './StyledButton.ts';
 
+const WIDTH = '210px';
+const HEIGHT = '50px';
+
 export default class ConversationList extends ScrollableDOMElement {
 
   public constructor( model: ChatModel ) {
@@ -15,7 +18,8 @@ export default class ConversationList extends ScrollableDOMElement {
 
     const conversationButton = new StyledButton( {
       label: 'New Conversation',
-      width: '190px',
+      width: WIDTH,
+      height: HEIGHT,
       onclick: () => {
         model.createNewConversation();
       }
@@ -35,7 +39,8 @@ export default class ConversationList extends ScrollableDOMElement {
     const addConversation = ( conversation: Conversation ) => {
       const buttonElement = new StyledButton( {
         label: conversation.nameProperty.value,
-        width: '190px',
+        width: WIDTH,
+        height: HEIGHT,
         onclick: () => {
           model.activateConversation( conversation );
         }

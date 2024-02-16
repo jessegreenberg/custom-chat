@@ -25,7 +25,7 @@ export default class Constants {
 
   public static readonly CHARACTER_WIDTH = CHARACTER_WIDTH;
 
-  public static UI_MARGIN = 50;
+  public static UI_MARGIN = 25;
 
   public static readonly TITLE_FONT = new Font( {
     family: 'sans-serif',

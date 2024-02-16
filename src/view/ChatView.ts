@@ -111,21 +111,21 @@ export default class ChatView extends Node {
     const chatCenter = this.conversationList.right + Constants.UI_MARGIN + chatWidth / 2;
 
     this.chatInput.centerX = chatCenter;
-    this.chatInput.bottom = height - 50;
+    this.chatInput.bottom = height - Constants.UI_MARGIN;
 
     this.loadingIcon.centerX = chatCenter;
-    this.loadingIcon.centerY = this.chatInput.top - 50;
+    this.loadingIcon.centerY = this.chatInput.top - Constants.UI_MARGIN;
 
     this.welcomeText.centerX = chatCenter;
-    this.welcomeText.bottom = this.chatInput.top - 50;
+    this.welcomeText.bottom = this.chatInput.top - Constants.UI_MARGIN;
 
     this.messageListView.centerX = chatCenter;
-    this.messageListView.top = 50;
+    this.messageListView.top = Constants.UI_MARGIN;
 
-    this.conversationList.left = 50;
-    this.conversationList.top = 50;
+    this.conversationList.left = Constants.UI_MARGIN;
+    this.conversationList.top = Constants.UI_MARGIN;
 
-    this.conversationList.setScrollHeight( this.chatInput.top - 50 );
+    this.conversationList.setScrollHeight( this.chatInput.top - Constants.UI_MARGIN );
 
     this.editConversationControls.centerX = this.conversationList.centerX;
     this.editConversationControls.centerY = this.chatInput.centerY;
@@ -146,13 +146,13 @@ export default class ChatView extends Node {
     this.chatInput.setWidth( chatWidth );
 
     this.chatInput.centerX = chatCenter;
-    this.chatInput.bottom = height - 50;
+    this.chatInput.bottom = height - Constants.UI_MARGIN;
 
     this.messageListView.setLayoutWidth( chatWidth );
-    this.messageListView.setScrollHeight( height - this.chatInput.height - this.loadingIcon.height - 150 );
+    this.messageListView.setScrollHeight( height - this.chatInput.height - this.loadingIcon.height - Constants.UI_MARGIN * 3 );
     this.messageListView.scrollToBottom();
 
-    this.conversationList.setScrollHeight( this.chatInput.top - 50 );
+    this.conversationList.setScrollHeight( this.chatInput.top - Constants.UI_MARGIN );
 
     this.layoutWithoutResizing();
   }
