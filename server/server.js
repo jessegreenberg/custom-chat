@@ -109,9 +109,8 @@ app.post( '/api/openai/speak', async ( req, res ) => {
 
     // A value from 0.25 to 4. It seems like OpenAI just speeds up the audio,
     // faster values don't sound like a natural human speaking quickly
-    speed: 1.1
+    speed: 1.0
   } );
-
 
   // generate a timestamped name for the file
   const now = new Date();

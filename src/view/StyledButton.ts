@@ -21,7 +21,9 @@ export default class StyledButton {
       width: '150px',
       height: '30px',
       overflow: 'ellipsis',
-      onclick: () => {}
+
+      // @ts-ignore - because the event is unused
+      onclick: ( event: Event ) => {}
     }, providedOptions );
 
     this.backgroundColor = options.backgroundColor;

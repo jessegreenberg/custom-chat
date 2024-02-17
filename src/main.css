@@ -36,8 +36,17 @@ pre {
   padding-left: 30px;
 }
 
+/*Make code blocks look nice*/
 code {
   padding: 2px 4px;
   border-radius: 4px;
   color: var( --code-color );
+}
+
+/*Make checkboxes fit the color profile*/
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  accent-color: var( --code-color );
 }

@@ -15,8 +15,8 @@ export default class CustomDOMNode extends Node {
 
       // Dimensions of the scrollable parent, dictating how much space it will take up and its size
       // before scrolling is necessary
-      width: '850px',
-      height: '500px'
+      domWidth: '850px',
+      domHeight: '500px'
     }, providedOptions );
 
     super( providedOptions );
@@ -30,8 +30,8 @@ export default class CustomDOMNode extends Node {
     // particularly important)
     this.layoutElement = document.createElement( 'div' );
     this.layoutElement.style.display = 'inline-block';
-    this.layoutElement.style.height = options.height;
-    this.layoutElement.style.width = options.width;
+    this.layoutElement.style.height = options.domHeight;
+    this.layoutElement.style.width = options.domWidth;
 
     const parentNode = new DOM( this.layoutElement );
     layoutRectangle.addChild( parentNode );
@@ -48,5 +48,13 @@ export default class CustomDOMNode extends Node {
       this.layoutEmitter.emit();
     } );
     resizeObserver.observe( this.parentElement );
+  }
+
+  public setDOMWidth( width: number ): void {
+    this.layoutElement.style.width = `${width}px`;
+  }
+
+  public setDOMHeight( height: number ): void {
+    this.layoutElement.style.height = `${height}px`;
   }
 }

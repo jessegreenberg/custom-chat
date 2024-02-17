@@ -1,4 +1,4 @@
-import { Node, Text } from 'phet-lib/scenery';
+import { Node, Plane, Text } from 'phet-lib/scenery';
 import ChatModel from '../model/ChatModel.ts';
 import Constants from '../Constants.ts';
 import TextInput from './TextInput.ts';
@@ -6,6 +6,7 @@ import MessageListView from './MessageListView.ts';
 import LoadingIcon from './LoadingIcon.ts';
 import ConversationList from './ConversationList.ts';
 import EditConversationControls from './EditConversationControls.ts';
+import SettingsDialog from './SettingsDialog.ts';
 
 export default class ChatView extends Node {
 
@@ -15,6 +16,7 @@ export default class ChatView extends Node {
   private readonly loadingIcon: LoadingIcon;
   private readonly conversationList: ConversationList;
   private readonly editConversationControls: EditConversationControls;
+  private readonly settingsDialog: SettingsDialog;
 
   private availableWidth = 0;
   private availableHeight = 0;
@@ -23,6 +25,9 @@ export default class ChatView extends Node {
   // DO NOT add this layer as a child of this view. But it is contained within this view element for
   // layout and organization purposes.
   public readonly domLayer: Node = new Node();
+
+  public readonly modalLayer: Node;
+  public readonly overlayPlane: Plane;
 
   constructor( model: ChatModel ) {
     super();
@@ -54,6 +59,14 @@ export default class ChatView extends Node {
       this.layout( this.availableWidth, this.availableHeight );
     } );
 
+    this.modalLayer = new Node( {
+      visibleProperty: model.settingsVisibleProperty
+    } );
+
+    this.overlayPlane = new Plane( {
+      fill: 'rgba(0,0,0,0.5)'
+    } );
+
     // Uses DOM so that the text is selectable.
     this.messageListView = new MessageListView( model );
     this.domLayer.addChild( this.messageListView );
@@ -64,8 +77,14 @@ export default class ChatView extends Node {
     this.editConversationControls = new EditConversationControls( model );
     this.domLayer.addChild( this.editConversationControls );
 
-    this.chatInput.valueSubmittedEmitter.addListener( ( value: string ) => {
-      model.sendMessage( value );
+    this.domLayer.addChild( this.modalLayer );
+    this.modalLayer.addChild( this.overlayPlane );
+
+    this.settingsDialog = new SettingsDialog( model );
+    this.modalLayer.addChild( this.settingsDialog );
+
+    this.chatInput.valueSubmittedEmitter.addListener( async ( value: string ) => {
+      await model.sendMessage( value );
     } );
 
     model.messages.lengthProperty.link( ( length: number ) => {
@@ -79,6 +98,12 @@ export default class ChatView extends Node {
 
     model.activeConversationProperty.link( () => {
       this.layout( this.availableWidth, this.availableHeight );
+    } );
+    //
+    window.addEventListener( 'click', event => {
+      if ( model.settingsVisibleProperty.value ) {
+        model.settingsVisibleProperty.value = false;
+      }
     } );
 
     // Adjust the layout whenever the DOM elements have a size change.
@@ -129,6 +154,10 @@ export default class ChatView extends Node {
 
     this.editConversationControls.centerX = this.conversationList.centerX;
     this.editConversationControls.centerY = this.chatInput.centerY;
+
+    this.settingsDialog.layout( width / 2, height / 2 );
+    this.settingsDialog.centerX = width / 2;
+    this.settingsDialog.centerY = height / 2;
   }
 
 
@@ -153,6 +182,8 @@ export default class ChatView extends Node {
     this.messageListView.scrollToBottom();
 
     this.conversationList.setScrollHeight( this.chatInput.top - Constants.UI_MARGIN );
+
+    this.settingsDialog.resize( width / 2, height / 2 );
 
     this.layoutWithoutResizing();
   }

@@ -13,6 +13,7 @@ const PADDING = 15;
 export default class MessageListView extends ScrollableDOMElement {
 
   private readonly messageElements: HTMLElement[] = [];
+  private webAudioElement: HTMLAudioElement | null = null;
 
   public constructor( model: ChatModel ) {
     super();
@@ -42,12 +43,17 @@ export default class MessageListView extends ScrollableDOMElement {
 
       messageElement.innerHTML = markdownIt.render( message.string );
 
+      // a listener on the model messageReceivedEmitter that will emit an event whenever a new message
+      // is received from the server (more specific than just adding a message to the model). We need to keep a
+      // reference to this listener so that we can remove it when the message is removed from the model, but
+      // it isn't always added depending on the message.
+      let messageReceivedListener: null | ( ( receivedMessage: Message ) => void );
+
       // if the message is from the bot, add a small play button to speak it
       if ( message.source === 'bot' ) {
 
         // an object with audio and contentType
         let audioData: { audio: string, contentType: string } | null = null;
-        let webAudio: HTMLAudioElement | null = null;
 
         const playButton = new StyledButton( {
           label: '▶',
@@ -56,46 +62,7 @@ export default class MessageListView extends ScrollableDOMElement {
           width: '40px',
           height: '40px',
           onclick: async () => {
-
-            // Only request once per message, save the result for future clicks
-            if ( audioData === null ) {
-
-              playButton.setElementEnabled( false );
-              const data = await model.getSpeechFromServer( message.string );
-              playButton.setElementEnabled( true );
-
-              if ( data.audio ) {
-                audioData = data;
-              }
-            }
-
-            if ( audioData ) {
-
-              // If the audio is already playing, pause it
-              if ( webAudio ) {
-                webAudio.pause();
-                webAudio = null;
-
-                playButton.setLabel( '▶' );
-              }
-              else {
-
-                // Convert the Base64 string back to an array buffer
-                const audioBlob = new Blob( [ new Uint8Array( atob( audioData.audio ).split( '' ).map( char => char.charCodeAt( 0 ) ) ) ], { type: audioData.contentType } );
-                const audioUrl = URL.createObjectURL( audioBlob );
-
-                webAudio = new Audio( audioUrl );
-                webAudio.play();
-
-                playButton.setLabel( '||' );
-
-                // Revoke the object URL to free up resources after playing
-                webAudio.onended = () => {
-                  URL.revokeObjectURL( audioUrl )
-                  playButton.setLabel( '▶' );
-                };
-              }
-            }
+            audioData = await this.speakContent( playButton, audioData, message.string, model );
           }
         } );
 
@@ -108,6 +75,13 @@ export default class MessageListView extends ScrollableDOMElement {
         playButton.domElement.style.marginLeft = 'auto';
 
         messageElement.appendChild( playButton.domElement );
+
+        messageReceivedListener = async ( receivedMessage: Message ) => {
+          if ( model.automaticSpeechEnabledProperty.value && receivedMessage === message ) {
+            audioData = await this.speakContent( playButton, audioData, message.string, model );
+          }
+        }
+        model.messageReceivedEmitter.addListener( messageReceivedListener );
       }
 
       this.parentElement.appendChild( messageElement );
@@ -120,6 +94,10 @@ export default class MessageListView extends ScrollableDOMElement {
         if ( removedMessage === message ) {
           this.parentElement.removeChild( messageElement );
           this.parentElement.removeChild( labelElement );
+
+          if ( messageReceivedListener ) {
+            model.messageReceivedEmitter.removeListener( messageReceivedListener );
+          }
 
           const index = this.messageElements.indexOf( messageElement );
           if ( index !== -1 ) {
@@ -150,5 +128,52 @@ export default class MessageListView extends ScrollableDOMElement {
       // so that the message element can grow beyond the minimum width
       messageElement.style.display = 'inline-block';
     } );
+  }
+
+  private async speakContent( playButton: StyledButton, audioData: { audio: string, contentType: string } | null, content: string, model: ChatModel ): Promise<{ audio: string, contentType: string } | null> {
+
+    // Only request once per message, save the result for future clicks
+    if ( audioData === null ) {
+
+      playButton.setElementEnabled( false );
+      const data = await model.getSpeechFromServer( content );
+      playButton.setElementEnabled( true );
+
+      if ( data.audio ) {
+        audioData = data;
+      }
+    }
+
+    if ( audioData ) {
+
+      // If the audio is already playing, pause it
+      if ( this.webAudioElement ) {
+        this.webAudioElement.pause();
+        this.webAudioElement = null;
+
+        playButton.setLabel( '▶' );
+      }
+      else {
+
+        // Convert the Base64 string back to an array buffer
+        const audioBlob = new Blob( [ new Uint8Array( atob( audioData.audio ).split( '' ).map( char => char.charCodeAt( 0 ) ) ) ], { type: audioData.contentType } );
+        const audioUrl = URL.createObjectURL( audioBlob );
+
+        this.webAudioElement = new Audio( audioUrl );
+        this.webAudioElement.play();
+
+        playButton.setLabel( '||' );
+
+        // Revoke the object URL to free up resources after playing
+        this.webAudioElement.onended = () => {
+          URL.revokeObjectURL( audioUrl )
+          playButton.setLabel( '▶' );
+
+          this.webAudioElement = null;
+        };
+      }
+    }
+
+    return audioData;
   }
 }

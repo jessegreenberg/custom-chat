@@ -1,4 +1,4 @@
-import { BooleanProperty, createObservableArray, DerivedProperty, ObservableArray, Property } from 'phet-lib/axon';
+import { BooleanProperty, createObservableArray, DerivedProperty, Emitter, ObservableArray, Property } from 'phet-lib/axon';
 import Message from './Message.ts';
 import Conversation from './Conversation.ts';
 
@@ -19,8 +19,22 @@ export default class ChatModel {
   // The list of conversations that have been created
   public readonly conversations: ObservableArray<Conversation>;
 
+  // Emits when a message is received from the server. We need to distinguish differences between
+  // a message being added because we received it from the server, and a message being added because
+  // of any reason (like save/load/user input).
+  public readonly messageReceivedEmitter: Emitter<Message[]> = new Emitter(  { parameters: [ { valueType: Message } ] } );
+
   // @ts-ignore - TODO: Why are all of these required in the typing?
   public readonly isWaitingForResponseProperty: DerivedProperty<boolean>;
+
+  // Controls visibility of the settings dialog.
+  public readonly settingsVisibleProperty = new BooleanProperty( false );
+
+  // If true, speech will happen automatically as soon as the bot responds.
+  public readonly automaticSpeechEnabledProperty = new BooleanProperty( false );
+
+  // If true, speech will use the OpenAI API to generate speech - otherwise it uses built-in speech synthesis.
+  public readonly useOpenAISpeechProperty = new BooleanProperty( false );
 
   public constructor() {
     this.messages = createObservableArray();
@@ -130,11 +144,14 @@ export default class ChatModel {
 
     // Send the message to the server
     const returnMessage = await this.sendDataToServer();
-    this.addMessage( new Message( returnMessage, 'bot', new Date().getTime() ) );
+    const botMessage = new Message( returnMessage, 'bot', new Date().getTime() );
+    this.addMessage( botMessage );
+
+    this.messageReceivedEmitter.emit( botMessage );
 
     // Once we have two messages, generate a title for the conversation
     if ( this.messages.length === 2 && this.activeConversationProperty.value ) {
-      this.activeConversationProperty.value.nameProperty.value = await this.summarizeForTitle( message );
+      this.activeConversationProperty.value.nameProperty.value = await this.summarizeForTitle();
       this.save();
     }
   }
@@ -278,6 +295,9 @@ export default class ChatModel {
 
       // load the active conversation
       this.activateConversation( this.conversations[ this.conversations.length - 1 ] || null );
+
+      this.useOpenAISpeechProperty.value = modelData.useOpenAISpeech || false;
+      this.automaticSpeechEnabledProperty.value = modelData.automaticSpeechEnabled || false;
     }
 
     if ( this.conversations.length === 0 ) {
@@ -292,7 +312,9 @@ export default class ChatModel {
 
     // serialize the model to JSON
     const modelData = {
-      conversations: this.conversations.map( conversation => conversation.save() )
+      conversations: this.conversations.map( conversation => conversation.save() ),
+      useOpenAISpeech: this.useOpenAISpeechProperty.value,
+      automaticSpeechEnabled: this.automaticSpeechEnabledProperty.value
     };
 
     // save modelData to local storage

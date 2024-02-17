@@ -1,0 +1,84 @@
+import ChatModel from '../model/ChatModel.ts';
+import Constants from '../Constants.ts';
+import { Node, Rectangle, Text } from 'phet-lib/scenery';
+import StyledButtonNode from './StyledButtonNode.ts';
+import StyledCheckboxNode from './StyledCheckboxNode.ts';
+
+const PADDING = 10;
+
+export default class SettingsDialog extends Node {
+  private readonly backgroundRectangle: Rectangle;
+  private readonly closeButtonNode: Node;
+  private readonly automaticSpeechCheckbox: Node;
+  private readonly useOpenAISpeechCheckbox: Node;
+
+  private readonly settingsHeading: Node;
+
+  public constructor( model: ChatModel ) {
+    super();
+    this.backgroundRectangle = new Rectangle( 0, 0, 0, 0, { fill: Constants.BACKGROUND_COLOR } );
+    this.addChild( this.backgroundRectangle );
+
+    this.settingsHeading = new Text( 'Settings', {
+      font: Constants.TITLE_FONT,
+      fill: Constants.TEXT_COLOR
+    } );
+    this.addChild( this.settingsHeading );
+
+    const closeDOMNode = new StyledButtonNode( {
+      label: 'X',
+      fontSize: '20px',
+      width: '50px',
+      height: '50px'
+    } );
+    this.addChild( closeDOMNode )
+    this.closeButtonNode = closeDOMNode;
+
+    // A checkbox for toggling automatic speech
+    this.automaticSpeechCheckbox = new StyledCheckboxNode( {
+      label: 'Auto-Speak Messages',
+      property: model.automaticSpeechEnabledProperty,
+      onclick: ( event: Event, checked: boolean ) => {
+        event.stopPropagation();
+        model.automaticSpeechEnabledProperty.value = checked;
+
+        // save settings when they change
+        model.save();
+      }
+    } );
+    this.addChild( this.automaticSpeechCheckbox );
+
+    this.useOpenAISpeechCheckbox = new StyledCheckboxNode( {
+      label: 'Use OpenAI Speech',
+      property: model.useOpenAISpeechProperty,
+      onclick: ( event: Event, checked: boolean ) => {
+        event.stopPropagation();
+        model.useOpenAISpeechProperty.value = checked;
+
+        // save settings when they change
+        model.save();
+      }
+    } );
+    this.addChild( this.useOpenAISpeechCheckbox );
+  }
+
+  public resize( width: number, height: number ): void {
+    this.backgroundRectangle.setRectWidth( width );
+    this.backgroundRectangle.setRectHeight( height );
+  }
+
+  public layout( width: number, height: number ): void {
+
+    this.closeButtonNode.right = this.backgroundRectangle.right - PADDING
+    this.closeButtonNode.top = PADDING;
+
+    this.settingsHeading.centerX = this.backgroundRectangle.centerX;
+    this.settingsHeading.centerY = this.closeButtonNode.centerY;
+
+    this.automaticSpeechCheckbox.left = PADDING;
+    this.automaticSpeechCheckbox.top = this.closeButtonNode.bottom + PADDING;
+
+    this.useOpenAISpeechCheckbox.left = PADDING;
+    this.useOpenAISpeechCheckbox.top = this.automaticSpeechCheckbox.bottom + PADDING;
+  }
+}

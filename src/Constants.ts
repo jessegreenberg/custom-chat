@@ -53,3 +53,9 @@ document.documentElement.style.setProperty( '--scrollbar-thumb-color', Constants
 document.documentElement.style.setProperty( '--scrollbar-thumb-color-over', Constants.SCROLLBAR_THUMB_COLOR_OVER );
 document.documentElement.style.setProperty( '--scrollbar-thumb-color-down', Constants.SCROLLBAR_THUMB_COLOR_DOWN );
 document.documentElement.style.setProperty( '--scrollbar-track-color', Constants.SCROLLBAR_TRACK_COLOR );
+document.documentElement.style.setProperty( '--background-color', Constants.BACKGROUND_COLOR );
+document.documentElement.style.setProperty( '--background-color-darker', Constants.BACKGROUND_COLOR_DARKER );
+document.documentElement.style.setProperty( '--background-color-lighter', Constants.BACKGROUND_COLOR_LIGHTER );
+document.documentElement.style.setProperty( '--background-color-over', Constants.BACKGROUND_COLOR_OVER );
+document.documentElement.style.setProperty( '--text-color', Constants.TEXT_COLOR );
+document.documentElement.style.setProperty( '--text-color-darker', Constants.TEXT_COLOR_DARKER );
