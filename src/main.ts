@@ -92,3 +92,15 @@ display.updateOnRequestAnimationFrame( dt => {
   model.step( dt );
   view.step( dt );
 } );
+
+// "rev" the speech synthesis engine to try and get the first output sounding better
+const revListener = () => {
+  speechSynthesis.speak( new SpeechSynthesisUtterance( '' ) );
+  window.removeEventListener( 'click', revListener );
+}
+window.addEventListener( 'click', revListener );
+
+// Stop all speech when the window refreshes
+window.addEventListener( 'beforeunload', () => {
+  speechSynthesis.cancel();
+} );

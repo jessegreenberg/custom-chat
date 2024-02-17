@@ -99,8 +99,11 @@ export default class ChatView extends Node {
     model.activeConversationProperty.link( () => {
       this.layout( this.availableWidth, this.availableHeight );
     } );
-    //
-    window.addEventListener( 'click', event => {
+
+    // Close the settings dialog when the window is clicked - adding to the window is quick and easy
+    // but requires that dialog content stop propagation of the event so that it doesn't close the dialog immediately.
+    // TODO: This also means that clicking in the empty space of the dialog closes it, which is not ideal.
+    window.addEventListener( 'click', () => {
       if ( model.settingsVisibleProperty.value ) {
         model.settingsVisibleProperty.value = false;
       }

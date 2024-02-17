@@ -23,6 +23,8 @@ export default class MessageListView extends ScrollableDOMElement {
       // A label that indicates who wrote the message
       const labelElement = document.createElement( 'p' );
       labelElement.textContent = message.source === 'user' ? 'You:' : 'Bot:';
+      labelElement.style.fontSize = Constants.FONT.size;
+      labelElement.style.fontFamily = Constants.FONT.family;
       this.styleElement( labelElement );
       labelElement.style.display = 'block';
       this.parentElement.appendChild( labelElement );
@@ -132,48 +134,98 @@ export default class MessageListView extends ScrollableDOMElement {
 
   private async speakContent( playButton: StyledButton, audioData: { audio: string, contentType: string } | null, content: string, model: ChatModel ): Promise<{ audio: string, contentType: string } | null> {
 
-    // Only request once per message, save the result for future clicks
-    if ( audioData === null ) {
+    if ( model.useOpenAISpeechProperty.value ) {
 
-      playButton.setElementEnabled( false );
-      const data = await model.getSpeechFromServer( content );
-      playButton.setElementEnabled( true );
+      // Only request once per message, save the result for future clicks
+      if ( audioData === null ) {
 
-      if ( data.audio ) {
-        audioData = data;
+        playButton.setElementEnabled( false );
+        const data = await model.getSpeechFromServer( content );
+        playButton.setElementEnabled( true );
+
+        if ( data.audio ) {
+          audioData = data;
+        }
+      }
+
+      if ( audioData ) {
+
+        // If the audio is already playing, pause it
+        if ( this.webAudioElement ) {
+          this.webAudioElement.pause();
+          this.webAudioElement = null;
+
+          playButton.setLabel( '▶' );
+        }
+        else {
+
+          // Convert the Base64 string back to an array buffer
+          const audioBlob = new Blob( [ new Uint8Array( atob( audioData.audio ).split( '' ).map( char => char.charCodeAt( 0 ) ) ) ], { type: audioData.contentType } );
+          const audioUrl = URL.createObjectURL( audioBlob );
+
+          this.webAudioElement = new Audio( audioUrl );
+          this.webAudioElement.play();
+
+          playButton.setLabel( '||' );
+
+          // Revoke the object URL to free up resources after playing
+          this.webAudioElement.onended = () => {
+            URL.revokeObjectURL( audioUrl )
+            playButton.setLabel( '▶' );
+
+            this.webAudioElement = null;
+          };
+        }
       }
     }
+    else {
 
-    if ( audioData ) {
+      // Not using openai, using speechSynthesis for cheaper and faster speech
+      if ( speechSynthesis.speaking ) {
 
-      // If the audio is already playing, pause it
-      if ( this.webAudioElement ) {
-        this.webAudioElement.pause();
-        this.webAudioElement = null;
-
+        // stop any previous speech
+        speechSynthesis.cancel();
         playButton.setLabel( '▶' );
       }
       else {
 
-        // Convert the Base64 string back to an array buffer
-        const audioBlob = new Blob( [ new Uint8Array( atob( audioData.audio ).split( '' ).map( char => char.charCodeAt( 0 ) ) ) ], { type: audioData.contentType } );
-        const audioUrl = URL.createObjectURL( audioBlob );
+        // speak directly with browser speech synthesis - remove markdown from the content
+        const utterance = new SpeechSynthesisUtterance( this.stripMarkdown( content ) );
+        utterance.lang = 'en-US';
 
-        this.webAudioElement = new Audio( audioUrl );
-        this.webAudioElement.play();
+        // use the best voice available
+        const voices = speechSynthesis.getVoices();
+        const enVoices = voices.filter( voice => voice.lang === 'en-US' );
 
+        const ariaVoice = enVoices.find( voice => voice.name.includes( 'Microsoft Michelle Online' ) );
+        const onlineVoice = enVoices.find( voice => voice.name.includes( 'Online' ) );
+        const googleVoice = enVoices.find( voice => voice.name.includes( 'Google' ) );
+        utterance.voice = ariaVoice || onlineVoice || googleVoice || enVoices[ 0 ]; // fallback to whatever en voice is available
+
+        // speed up the speech a bit, it sounds nicer (for best voices on Edge)
+        utterance.rate = 1.3;
+
+        speechSynthesis.speak( utterance );
+
+
+        // indicate that the speech is playing
         playButton.setLabel( '||' );
 
-        // Revoke the object URL to free up resources after playing
-        this.webAudioElement.onended = () => {
-          URL.revokeObjectURL( audioUrl )
+        // when the speech is done, set the button back to the play icon
+        utterance.onend = () => {
           playButton.setLabel( '▶' );
-
-          this.webAudioElement = null;
         };
       }
     }
 
     return audioData;
+  }
+
+  /**
+   * Try to remove markdown from text content, so that it can be spoken better by the browser's speech synthesis.
+   */
+  private stripMarkdown( content: string ): string {
+    const regex = /(\*\*|__)(.*?)\1|(`)(.*?)\3|(\*\*|__)(.*?)\1|#(.*?)#|\[(.*?)\]\((.*?)\)|(\*\b(.*?)\b\*)|(```)(.*?)\3/g;
+    return content.replace( regex, '$2$4$6$7$9$11$13' ).replace( /\n/g, ' ' ).trim();
   }
 }
