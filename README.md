@@ -6,6 +6,8 @@ See https://github.com/phetsims/phet-vite-demo.
 
 Mostly, it includes speech in the web interface, either from SpeechSynthesis or from OpenAI's speech API.
 
+![interface-example](https://github.com/jessegreenberg/custom-chat/blob/main/doc/img.png)
+
 ### Quick Start
 
 (1) Clone the repo.
