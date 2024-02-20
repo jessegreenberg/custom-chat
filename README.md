@@ -5,6 +5,7 @@ A take on ChatGPT with some features that I have wanted for a while. Also testin
 See https://github.com/phetsims/phet-vite-demo.
 
 Mostly, it has speech built in to the web interface, either from SpeechSynthesis or from OpenAI's speech API.
+Conversations are saved to local storage.
 
 ![interface-example](https://github.com/jessegreenberg/custom-chat/blob/main/doc/img.png)
 
