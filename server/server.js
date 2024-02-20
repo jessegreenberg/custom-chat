@@ -26,6 +26,7 @@ app.use( ( req, res, next ) => {
 
 // Route to handle requests
 app.post( '/api/openai', async ( req, res ) => {
+  const model = req.body.model;
   const previousMessages = req.body.messages; // array of Message objects
 
   const formattedMessages = previousMessages.map( message => {
@@ -46,12 +47,7 @@ app.post( '/api/openai', async ( req, res ) => {
 
   try {
     const completion = await openai.chat.completions.create( {
-
-      // the latest model, OpenAI claims this model has reduced 'laziness'
-      model: 'gpt-4-0125-preview',
-      // model: 'gpt-4-turbo-preview', // currently points to the same model as 'gpt-4-0125-preview'
-      // model: 'gpt-4', // snapshot of gpt-4 from June 2023
-      // model: 'gpt-3.5-turbo', // faster, cheaper
+      model: model,
       messages: formattedMessages
     } );
     res.json( completion.choices[ 0 ] );

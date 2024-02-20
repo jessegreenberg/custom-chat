@@ -2,7 +2,6 @@ import CustomDOMNode from './CustomDOMNode.ts';
 import { Node } from 'phet-lib/scenery';
 import Constants from '../Constants.ts';
 import _ from 'lodash';
-import { Property } from 'phet-lib/axon';
 
 export default class StyledCheckboxNode extends Node {
   public constructor( providedOptions: any ) {
@@ -10,9 +9,10 @@ export default class StyledCheckboxNode extends Node {
     const options = _.merge( {
       label: 'Checkbox',
 
-      property: Property | null,
+      property: null,
 
-      width: '200px',
+      // Extra width for longer labels
+      width: '400px',
       height: '30px',
 
       // @ts-ignore - because the event is unused
@@ -27,7 +27,6 @@ export default class StyledCheckboxNode extends Node {
       domHeight: options.height
     } );
 
-    // A checkbox for toggling automatic speech
     const parentElement = document.createElement( 'div' );
     parentElement.style.display = 'inline-block';
 

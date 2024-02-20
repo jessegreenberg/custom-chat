@@ -10,7 +10,7 @@ export default class Conversation {
     this.messages = messages;
   }
 
-  public save(): void {
+  public save(): { name: string, messages: Message[] } {
 
     // Save this state to JSON
     return {

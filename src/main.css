@@ -50,3 +50,8 @@ input[type="checkbox"] {
   border-radius: 4px;
   accent-color: var( --code-color );
 }
+
+/*Make select elements fit the color profile*/
+select {
+  border-radius: 4px;
+}

@@ -1,4 +1,4 @@
-import { BooleanProperty, createObservableArray, DerivedProperty, Emitter, ObservableArray, Property } from 'phet-lib/axon';
+import { StringProperty, BooleanProperty, createObservableArray, DerivedProperty, Emitter, ObservableArray, Property } from 'phet-lib/axon';
 import Message from './Message.ts';
 import Conversation from './Conversation.ts';
 
@@ -35,6 +35,9 @@ export default class ChatModel {
 
   // If true, speech will use the OpenAI API to generate speech - otherwise it uses built-in speech synthesis.
   public readonly useOpenAISpeechProperty = new BooleanProperty( false );
+
+  // The model to use for the chat.
+  public readonly modelProperty = new StringProperty( 'gpt-4-0125-preview' );
 
   public constructor() {
     this.messages = createObservableArray();
@@ -196,7 +199,8 @@ export default class ChatModel {
     this.isWaitingForTextProperty.value = true;
 
     const data = {
-      messages: this.messages
+      messages: this.messages,
+      model: this.modelProperty.value
     };
 
     // Return an error message and indicate that the model is no longer waiting for this request.
@@ -298,8 +302,10 @@ export default class ChatModel {
 
       this.useOpenAISpeechProperty.value = modelData.useOpenAISpeech || false;
       this.automaticSpeechEnabledProperty.value = modelData.automaticSpeechEnabled || false;
+      this.modelProperty.value = modelData.model || 'gpt-4-0125-preview';
     }
 
+    // Start with a new conversation if there are no conversations.
     if ( this.conversations.length === 0 ) {
       this.createNewConversation();
     }
@@ -314,7 +320,8 @@ export default class ChatModel {
     const modelData = {
       conversations: this.conversations.map( conversation => conversation.save() ),
       useOpenAISpeech: this.useOpenAISpeechProperty.value,
-      automaticSpeechEnabled: this.automaticSpeechEnabledProperty.value
+      automaticSpeechEnabled: this.automaticSpeechEnabledProperty.value,
+      model: this.modelProperty.value
     };
 
     // save modelData to local storage

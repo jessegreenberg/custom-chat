@@ -43,7 +43,14 @@ export default class MessageListView extends ScrollableDOMElement {
 
       this.messageElements.push( messageElement );
 
-      messageElement.innerHTML = markdownIt.render( message.string );
+      // The chat responds with nice markdown, so we can display it nicely with markdown-it. But we don't want
+      // to do that for user content since it could be anything.
+      if ( message.source === 'bot' ) {
+        messageElement.innerHTML = markdownIt.render( message.string );
+      }
+      else {
+        messageElement.textContent = message.string;
+      }
 
       // a listener on the model messageReceivedEmitter that will emit an event whenever a new message
       // is received from the server (more specific than just adding a message to the model). We need to keep a
