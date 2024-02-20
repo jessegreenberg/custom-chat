@@ -4,7 +4,7 @@ custom-chat
 A take on ChatGPT with some features that I have wanted for a while. Also testing out using Vite with PhET code.
 See https://github.com/phetsims/phet-vite-demo.
 
-Mostly, it includes speech in the web interface, either from SpeechSynthesis or from OpenAI's speech API.
+Mostly, it has speech built in to the web interface, either from SpeechSynthesis or from OpenAI's speech API.
 
 ![interface-example](https://github.com/jessegreenberg/custom-chat/blob/main/doc/img.png)
 
@@ -34,3 +34,9 @@ npm run dev
 ```
 
 It will print out the URL to navigate to, e.g. http://localhost:5173/.
+
+### Improvement Ideas
+
+- [ ] Handle changing conversations mid-request.
+- [ ] Settings for voice/speech options.
+- [ ] Stream results from OpenAI.
