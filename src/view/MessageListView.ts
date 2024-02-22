@@ -55,6 +55,36 @@ export default class MessageListView extends ScrollableDOMElement {
         messageElement.style.whiteSpace = 'pre-line';
       }
 
+      const buttonParent = document.createElement( 'div' );
+      buttonParent.style.display = 'flex';
+      buttonParent.style.paddingTop = '15px';
+
+      if ( message.source === 'user' ) {
+
+        // a delete button to the left
+        const restartFromHereButton = new StyledButton( {
+          label: '↺',
+          overflow: 'hidden',
+          fontSize: '25px',
+          width: '40px',
+          height: '40px',
+          onclick: async () => {
+
+            // Delete all messages below this one
+            const index = model.messages.indexOf( message );
+            while( model.messages.length > index ) {
+              model.removeMessage( model.messages[ model.messages.length - 1 ] );
+            }
+
+            // now send the message again to start the conversation again from here
+            await model.sendMessage( message.string );
+          }
+        } );
+
+        buttonParent.style.justifyContent = 'flex-start'; // so that they are on the sides
+        buttonParent.appendChild( restartFromHereButton.domElement );
+      }
+
       // a listener on the model messageReceivedEmitter that will emit an event whenever a new message
       // is received from the server (more specific than just adding a message to the model). We need to keep a
       // reference to this listener so that we can remove it when the message is removed from the model, but
@@ -78,15 +108,8 @@ export default class MessageListView extends ScrollableDOMElement {
           }
         } );
 
-        // place the button below the message to the right
-        playButton.domElement.style.display = 'block';
-        playButton.domElement.style.margin = 'auto';
-        playButton.domElement.style.marginTop = '10px';
-        playButton.domElement.style.marginRight = '0px';
-        playButton.domElement.style.marginBottom = '0px'
-        playButton.domElement.style.marginLeft = 'auto';
-
-        messageElement.appendChild( playButton.domElement );
+        buttonParent.style.justifyContent = 'flex-end'; // so that they are on the sides
+        buttonParent.appendChild( playButton.domElement );
 
         messageReceivedListener = async ( receivedMessage: Message ) => {
           if ( model.automaticSpeechEnabledProperty.value && receivedMessage === message ) {
@@ -95,6 +118,8 @@ export default class MessageListView extends ScrollableDOMElement {
         }
         model.messageReceivedEmitter.addListener( messageReceivedListener );
       }
+
+      messageElement.appendChild( buttonParent );
 
       this.parentElement.appendChild( messageElement );
 

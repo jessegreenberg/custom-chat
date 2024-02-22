@@ -129,6 +129,8 @@ export default class ChatModel {
    */
   public removeMessage( message: Message ): void {
     this.messages.remove( message );
+
+    this.save();
   }
 
   /**
