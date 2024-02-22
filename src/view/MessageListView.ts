@@ -50,6 +50,9 @@ export default class MessageListView extends ScrollableDOMElement {
       }
       else {
         messageElement.textContent = message.string;
+
+        // so that the new lines are preserved
+        messageElement.style.whiteSpace = 'pre-line';
       }
 
       // a listener on the model messageReceivedEmitter that will emit an event whenever a new message
