@@ -10,7 +10,7 @@ export default class UploadImageButton extends Node {
   public constructor() {
     const uploadButton = new StyledButtonNode( {
       label: '🖼', // an upload icon,
-      fontSize: '30px',
+      fontSize: '40px',
       width: '75px',
       height: '75px',
 
