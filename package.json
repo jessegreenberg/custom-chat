@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "concurrently \"npm start\" \"npx vite serve\"",
+    "server": "node server/server.js",
+    "dev": "concurrently \"npm run server\" \"npx vite serve\"",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

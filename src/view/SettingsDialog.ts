@@ -69,7 +69,10 @@ export default class SettingsDialog extends Node {
       { value: 'gpt-4-0125-preview', label: 'gpt-4-0125-preview (better, slower, more expensive)' },
 
       // Solid gpt-3.5 model, fast and cheap
-      { value: 'gpt-3.5-turbo', label: 'gpt-3.5-turbo (faster, cheaper)' }
+      { value: 'gpt-3.5-turbo', label: 'gpt-3.5-turbo (faster, cheaper)' },
+
+      // A new model that is faster and cheaper than gpt-4, but just as good
+      { value: 'gpt-4o', label: 'gpt-4o (multimodal, faster/cheaper than gpt-4 without loss of quality)' },
 
       // Other options could include
       // gpt-4 - snapshot from June 2023

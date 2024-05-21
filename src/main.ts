@@ -54,6 +54,9 @@ const model = new ChatModel();
 const view = new ChatView( model );
 scene.addChild( view );
 
+// @ts-expect-error - for debugging, expose the model to the window
+window.chatModel = model;
+
 // load the model (after the view has been fully initialized)
 model.load();
 

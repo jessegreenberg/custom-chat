@@ -11,11 +11,74 @@ const openai = new OpenAI( {
   apiKey: process.env.OPENAI_API_KEY
 } );
 
+const SYSTEM_MESSAGE = {
+  role: 'system',
+  content: `You are a professional chat-bot. Please be as helpful, kind, and informative to the user as
+  possible. Please keep responses as short as possible, but not shorter than necessary.`
+};
+
+const INITIAL_CONTEXT_MESSAGE = {
+  role: 'system',
+  content: 'The following is the first message request from the user. It is then followed by the last 5 messages in ' +
+           'the conversation. This is to provide context for the chat-bot to respond to the user.'
+};
+
+/**
+ * Format a Message into the format expected by the OpenAI API. If image data is included in the message,
+ * it is added to the payload.
+ * @param message
+ * @returns {{role: (string), content: [{text, type: string}]}}
+ */
+function formatMessage( message ) {
+  const content = [
+    {
+      type: 'text',
+      text: message.string
+    }
+  ];
+  if ( message.imageString ) {
+    content.push( {
+      type: 'image_url',
+      'image_url': {
+        'url': `data:image/jpeg;base64,${message.imageString}`
+      }
+    } );
+  }
+  return {
+    role: message.source === 'user' ? 'user' : 'assistant',
+    content: content
+  };
+}
+
+function prepareMessages( previousMessages ) {
+  let formattedMessages = [ SYSTEM_MESSAGE ];
+
+  if ( previousMessages.length > 5 ) {
+    formattedMessages.push( INITIAL_CONTEXT_MESSAGE );
+
+    // Include the first message
+    formattedMessages.push( formatMessage( previousMessages[ 0 ] ) );
+
+    // Include the last 5 messages
+    const recentMessages = previousMessages.slice( -5 );
+    recentMessages.forEach( message => {
+      formattedMessages.push( formatMessage( message ) );
+    } );
+  }
+  else {
+    // Include all messages
+    formattedMessages = formattedMessages.concat( previousMessages.map( formatMessage ) );
+  }
+
+  return formattedMessages;
+}
+
 const app = express();
 const port = 3000;
 
-// Middleware to parse JSON bodies
-app.use( express.json() );
+// Middleware to parse JSON bodies - increase the limit  bit to allow for larger messages
+// with image data
+app.use( express.json( { limit: '10mb' } ) );
 
 // CORS Middleware to allow requests from your frontend domain
 app.use( ( req, res, next ) => {
@@ -24,26 +87,10 @@ app.use( ( req, res, next ) => {
   next();
 } );
 
-// Route to handle requests
 app.post( '/api/openai', async ( req, res ) => {
-  const model = req.body.model;
-  const previousMessages = req.body.messages; // array of Message objects
+  const { model, messages: previousMessages } = req.body;
 
-  const formattedMessages = previousMessages.map( message => {
-    return {
-
-      // roles can be 'user' or 'assistant' or 'system' (for special messages like the first message)
-      role: message.source === 'user' ? 'user' : 'assistant',
-      content: message.string
-    };
-  } );
-
-  const leadingMessage = {
-    role: 'system',
-    content: `You are a professional chat-bot. Please be as helpful, kind, and informative to the user as
-    possible. Please keep responses as short as possible, but not shorter than necessary.`
-  };
-  formattedMessages.unshift( leadingMessage );
+  const formattedMessages = prepareMessages( previousMessages );
 
   try {
     const completion = await openai.chat.completions.create( {

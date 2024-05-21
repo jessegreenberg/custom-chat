@@ -1,4 +1,4 @@
-import { StringProperty, BooleanProperty, createObservableArray, DerivedProperty, Emitter, ObservableArray, Property } from 'phet-lib/axon';
+import { BooleanProperty, createObservableArray, DerivedProperty, Emitter, ObservableArray, Property, StringProperty } from 'phet-lib/axon';
 import Message from './Message.ts';
 import Conversation from './Conversation.ts';
 
@@ -22,7 +22,7 @@ export default class ChatModel {
   // Emits when a message is received from the server. We need to distinguish differences between
   // a message being added because we received it from the server, and a message being added because
   // of any reason (like save/load/user input).
-  public readonly messageReceivedEmitter: Emitter<Message[]> = new Emitter(  { parameters: [ { valueType: Message } ] } );
+  public readonly messageReceivedEmitter: Emitter<Message[]> = new Emitter( { parameters: [ { valueType: Message } ] } );
 
   // @ts-ignore - TODO: Why are all of these required in the typing?
   public readonly isWaitingForResponseProperty: DerivedProperty<boolean>;
@@ -37,7 +37,7 @@ export default class ChatModel {
   public readonly useOpenAISpeechProperty = new BooleanProperty( false );
 
   // The model to use for the chat.
-  public readonly modelProperty = new StringProperty( 'gpt-4-0125-preview' );
+  public readonly modelProperty = new StringProperty( 'gpt-4o' );
 
   public constructor() {
     this.messages = createObservableArray();
@@ -143,8 +143,8 @@ export default class ChatModel {
   /**
    * Sends a new message. The message is added to the list of messages, and a request is made to OpenAI.
    */
-  public async sendMessage( message: string ): Promise<void> {
-    const newMessage = new Message( message, 'user', new Date().getTime() );
+  public async sendMessage( message: string, imageString?: string ): Promise<void> {
+    const newMessage = new Message( message, 'user', new Date().getTime(), imageString );
     this.addMessage( newMessage );
 
     // Send the message to the server
@@ -200,8 +200,14 @@ export default class ChatModel {
 
     this.isWaitingForTextProperty.value = true;
 
+    // Images are very large. We only want to send an image if it is in the last message. Create a new
+    // set of Messages and only keep the image if it is in the last message.
+    const messages = this.messages.map( message => {
+      return new Message( message.string, message.source, message.timestamp, message === this.messages[ this.messages.length - 1 ] ? message.imageString : undefined );
+    } );
+
     const data = {
-      messages: this.messages,
+      messages: messages,
       model: this.modelProperty.value
     };
 

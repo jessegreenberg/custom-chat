@@ -9,9 +9,12 @@ export default class Message {
   // who sent the message
   public readonly source: 'user' | 'bot';
 
-  constructor( string: string, source: 'user' | 'bot', timestamp: number ) {
+  public readonly imageString?: string;
+
+  constructor( string: string, source: 'user' | 'bot', timestamp: number, imageString?: string ) {
     this.string = string;
     this.source = source;
     this.timestamp = timestamp;
+    this.imageString = imageString;
   }
 }

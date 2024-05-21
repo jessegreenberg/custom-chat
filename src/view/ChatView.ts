@@ -7,11 +7,13 @@ import LoadingIcon from './LoadingIcon.ts';
 import ConversationList from './ConversationList.ts';
 import EditConversationControls from './EditConversationControls.ts';
 import SettingsDialog from './SettingsDialog.ts';
+import UploadImageButton from './UploadImageButton.ts';
 
 export default class ChatView extends Node {
 
   private readonly welcomeText: Text;
   private readonly chatInput: TextInput;
+  private readonly uploadButton: UploadImageButton;
   private readonly messageListView: MessageListView;
   private readonly loadingIcon: LoadingIcon;
   private readonly conversationList: ConversationList;
@@ -50,6 +52,9 @@ export default class ChatView extends Node {
     } );
     this.domLayer.addChild( this.chatInput );
 
+    this.uploadButton = new UploadImageButton();
+    this.domLayer.addChild( this.uploadButton );
+
     this.loadingIcon = new LoadingIcon( {
       visibleProperty: model.isWaitingForResponseProperty
     } );
@@ -84,7 +89,10 @@ export default class ChatView extends Node {
     this.modalLayer.addChild( this.settingsDialog );
 
     this.chatInput.valueSubmittedEmitter.addListener( async ( value: string ) => {
-      await model.sendMessage( value );
+      await model.sendMessage( value, this.uploadButton.uploadValueProperty.value );
+
+      // After sending the image, clear it because we don't want to send it multiple times
+      this.uploadButton.uploadValueProperty.value = '';
     } );
 
     model.messages.lengthProperty.link( ( length: number ) => {
@@ -138,7 +146,6 @@ export default class ChatView extends Node {
     const chatWidth = width - this.conversationList.width - 3 * Constants.UI_MARGIN;
     const chatCenter = this.conversationList.right + Constants.UI_MARGIN + chatWidth / 2;
 
-    this.chatInput.centerX = chatCenter;
     this.chatInput.bottom = height - Constants.UI_MARGIN;
 
     this.loadingIcon.centerX = chatCenter;
@@ -149,6 +156,10 @@ export default class ChatView extends Node {
 
     this.messageListView.centerX = chatCenter;
     this.messageListView.top = Constants.UI_MARGIN;
+
+    this.chatInput.left = this.messageListView.left;
+    this.uploadButton.left = this.chatInput.right + Constants.UI_MARGIN;
+    this.uploadButton.centerY = this.chatInput.centerY;
 
     this.conversationList.left = Constants.UI_MARGIN;
     this.conversationList.top = Constants.UI_MARGIN;
@@ -175,7 +186,7 @@ export default class ChatView extends Node {
     // of the UI components
     const chatWidth = width - this.conversationList.width - 3 * Constants.UI_MARGIN;
     const chatCenter = this.conversationList.right + Constants.UI_MARGIN + chatWidth / 2;
-    this.chatInput.setWidth( chatWidth );
+    this.chatInput.setWidth( chatWidth - this.uploadButton.width - Constants.UI_MARGIN * 2 );
 
     this.chatInput.centerX = chatCenter;
     this.chatInput.bottom = height - Constants.UI_MARGIN;
