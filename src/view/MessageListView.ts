@@ -49,10 +49,24 @@ export default class MessageListView extends ScrollableDOMElement {
         messageElement.innerHTML = markdownIt.render( message.string );
       }
       else {
-        messageElement.textContent = message.string;
+        const textContentElement = document.createElement( 'p' );
+        messageElement.appendChild( textContentElement );
+        textContentElement.textContent = message.string;
 
         // so that the new lines are preserved
-        messageElement.style.whiteSpace = 'pre-line';
+        textContentElement.style.whiteSpace = 'pre-line';
+
+        // if there is an image in the message, add it below the text
+        if ( message.imageString ) {
+          const imageElement = document.createElement( 'img' );
+
+          // the image string is a base64 encoded string representation of the image
+          imageElement.src = 'data:image/png;base64,' + message.imageString;
+          // imageElement.style.width = '25%';
+          // imageElement.style.height = 'auto';
+
+          messageElement.appendChild( imageElement );
+        }
       }
 
       const buttonParent = document.createElement( 'div' );

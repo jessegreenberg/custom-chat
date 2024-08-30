@@ -200,14 +200,14 @@ export default class ChatModel {
 
     this.isWaitingForTextProperty.value = true;
 
-    // Images are very large. We only want to send an image if it is in the last message. Create a new
-    // set of Messages and only keep the image if it is in the last message.
-    const messages = this.messages.map( message => {
-      return new Message( message.string, message.source, message.timestamp, message === this.messages[ this.messages.length - 1 ] ? message.imageString : undefined );
-    } );
+    // // Images are very large. We only want to send an image if it is in the last message. Create a new
+    // // set of Messages and only keep the image if it is in the last message.
+    // const messages = this.messages.map( message => {
+    //   return new Message( message.string, message.source, message.timestamp, message === this.messages[ this.messages.length - 1 ] ? message.imageString : undefined );
+    // } );
 
     const data = {
-      messages: messages,
+      messages: this.messages,
       model: this.modelProperty.value
     };
 
