@@ -169,7 +169,7 @@ class TextInput extends Node {
       // @ts-ignore - Unclear why code is not available
       if ( event.code === KeyboardUtils.KEY_ENTER && !event.shiftKey ) {
         event.preventDefault();
-        this.valueSubmittedEmitter.emit( domElement.value );
+          this.valueSubmittedEmitter.emit( domElement.value );
         domElement.blur();
 
         // clear the value after submission

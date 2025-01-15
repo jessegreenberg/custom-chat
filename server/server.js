@@ -50,7 +50,15 @@ function formatMessage( message ) {
   };
 }
 
-function prepareMessages( previousMessages ) {
+function prepareMessages( previousMessages, model ) {
+
+  // The o1 models do not support 'system' messages, so for that model
+  // convert to 'assistant' messages
+  if ( model.includes( 'o1' ) ) {
+    SYSTEM_MESSAGE.role = 'assistant';
+    INITIAL_CONTEXT_MESSAGE.role = 'assistant';
+  }
+
   let formattedMessages = [ SYSTEM_MESSAGE ];
 
   if ( previousMessages.length > 5 ) {
@@ -90,7 +98,7 @@ app.use( ( req, res, next ) => {
 app.post( '/api/openai', async ( req, res ) => {
   const { model, messages: previousMessages } = req.body;
 
-  const formattedMessages = prepareMessages( previousMessages );
+  const formattedMessages = prepareMessages( previousMessages, model );
 
   try {
     const completion = await openai.chat.completions.create( {
