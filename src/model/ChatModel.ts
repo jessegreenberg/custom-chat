@@ -2,6 +2,8 @@ import { BooleanProperty, createObservableArray, DerivedProperty, Emitter, Obser
 import Message from './Message.ts';
 import Conversation from './Conversation.ts';
 
+const windowHost = window.location.hostname;
+
 export default class ChatModel {
 
   // The displayed list of messages for the active conversation
@@ -170,7 +172,7 @@ export default class ChatModel {
         messages: this.messages
       };
 
-      const response = await fetch( 'http://localhost:3000/api/openai/summarizeTitle', {
+      const response = await fetch( `http://${windowHost}:3000/api/openai/summarizeTitle`, {
         method: 'POST', // or 'PUT'
         headers: {
           'Content-Type': 'application/json'
@@ -224,7 +226,7 @@ export default class ChatModel {
     }
 
     try {
-      const response = await fetch( 'http://localhost:3000/api/openai', {
+      const response = await fetch( `http://${windowHost}:3000/api/openai`, {
         method: 'POST', // or 'PUT'
         headers: {
           'Content-Type': 'application/json'
@@ -266,7 +268,7 @@ export default class ChatModel {
     }
 
     try {
-      const response = await fetch( 'http://localhost:3000/api/openai/speak', {
+      const response = await fetch( `http://${windowHost}:3000/api/openai/speak`, {
         method: 'POST', // or 'PUT'
         headers: {
           'Content-Type': 'application/json'
