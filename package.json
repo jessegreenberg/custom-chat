@@ -6,6 +6,7 @@
   "scripts": {
     "server": "node server/server.js",
     "dev": "concurrently \"npm run server\" \"npx vite serve\"",
+    "dev:host": "concurrently \"npm run server\" \"npx vite serve --host 0.0.0.0\"",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
