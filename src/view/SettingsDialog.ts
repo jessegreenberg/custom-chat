@@ -73,7 +73,10 @@ export default class SettingsDialog extends Node {
 
       // A new model that is faster and cheaper than gpt-4, but just as good
       { value: 'gpt-4o', label: 'gpt-4o (multimodal, faster/cheaper than gpt-4 without loss of quality)' },
-      { value: 'o1-preview', label: 'o1-preview' },
+
+      { value: 'o1', label: 'o1 (complex reasoning)' },
+
+      { value: 'o3-mini', label: 'o3-mini (reasoning for science and math)' },
 
       // Other options could include
       // gpt-4 - snapshot from June 2023
