@@ -1,6 +1,6 @@
-import ChatModel from '../model/ChatModel.ts';
-import Constants from '../Constants.ts';
 import { Node, Rectangle, Text } from 'phet-lib/scenery';
+import Constants from '../Constants.ts';
+import ChatModel from '../model/ChatModel.ts';
 import StyledButtonNode from './StyledButtonNode.ts';
 import StyledCheckboxNode from './StyledCheckboxNode.ts';
 import StyledSelectNode from './StyledSelectNode.ts';
@@ -12,9 +12,12 @@ export default class SettingsDialog extends Node {
   private readonly closeButtonNode: Node;
   private readonly automaticSpeechCheckbox: Node;
   private readonly useOpenAISpeechCheckbox: Node;
-  private readonly modelSelector: Node;
+  private readonly modelSelector: StyledSelectNode;
+  private readonly fetchModelsButton: StyledButtonNode;
 
   private readonly settingsHeading: Node;
+
+  private readonly model: ChatModel;
 
   public constructor( model: ChatModel ) {
     super();
@@ -26,6 +29,8 @@ export default class SettingsDialog extends Node {
       fill: Constants.TEXT_COLOR
     } );
     this.addChild( this.settingsHeading );
+
+    this.model = model;
 
     const closeDOMNode = new StyledButtonNode( {
       label: 'X',
@@ -63,24 +68,7 @@ export default class SettingsDialog extends Node {
     } );
     this.addChild( this.useOpenAISpeechCheckbox );
 
-    this.modelSelector = new StyledSelectNode( model.modelProperty, [
-
-      // The latest model, OpenAI claims this model has reduced 'laziness'
-      { value: 'gpt-4-0125-preview', label: 'gpt-4-0125-preview (better, slower, more expensive)' },
-
-      // Solid gpt-3.5 model, fast and cheap
-      { value: 'gpt-3.5-turbo', label: 'gpt-3.5-turbo (faster, cheaper)' },
-
-      // A new model that is faster and cheaper than gpt-4, but just as good
-      { value: 'gpt-4o', label: 'gpt-4o (multimodal, faster/cheaper than gpt-4 without loss of quality)' },
-
-      { value: 'o1', label: 'o1 (complex reasoning)' },
-
-      { value: 'o3-mini', label: 'o3-mini (reasoning for science and math)' },
-
-      // Other options could include
-      // gpt-4 - snapshot from June 2023
-    ], {
+    this.modelSelector = new StyledSelectNode( model.modelProperty, [], {
       label: 'Model:',
       onchange: () => {
 
@@ -89,6 +77,27 @@ export default class SettingsDialog extends Node {
       }
     } );
     this.addChild( this.modelSelector );
+
+    this.fetchModelsButton = new StyledButtonNode( {
+      label: 'Fetch Models',
+      onclick: ( event: Event ) => {
+        event.stopPropagation();
+        this.populateModels( true );
+      }
+    } );
+    this.addChild( this.fetchModelsButton )
+
+    this.populateModels();
+  }
+
+  private populateModels( refresh = false ): void {
+
+    // This is where we would fetch the models from the server and update the model selector.
+    // For now, we are using the DEFAULT_MODELS array defined above.
+    this.model.fetchModels( refresh ).then( models => {
+      const modelsList = models.map( model => ( { value: model.id, label: model.id } ) );
+      this.modelSelector.setOptionsList( modelsList );
+    } );
   }
 
   public resize( width: number, height: number ): void {
@@ -96,7 +105,7 @@ export default class SettingsDialog extends Node {
     this.backgroundRectangle.setRectHeight( height );
   }
 
-  public layout( width: number, height: number ): void {
+  public layout(): void {
 
     this.closeButtonNode.right = this.backgroundRectangle.right - PADDING
     this.closeButtonNode.top = PADDING;
@@ -112,5 +121,8 @@ export default class SettingsDialog extends Node {
 
     this.modelSelector.left = PADDING;
     this.modelSelector.top = this.useOpenAISpeechCheckbox.bottom + PADDING;
+
+    this.fetchModelsButton.left = PADDING;
+    this.fetchModelsButton.top = this.modelSelector.bottom + PADDING;
   }
 }

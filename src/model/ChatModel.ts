@@ -1,8 +1,17 @@
 import { BooleanProperty, createObservableArray, DerivedProperty, Emitter, ObservableArray, Property, StringProperty } from 'phet-lib/axon';
-import Message from './Message.ts';
 import Conversation from './Conversation.ts';
+import Message from './Message.ts';
 
 const windowHost = window.location.hostname;
+
+type ServerResponse = {
+
+  // A chat message from the server
+  message: string;
+
+  // An image string from the server, if using an image model
+  imageString?: string;
+}
 
 export default class ChatModel {
 
@@ -150,8 +159,9 @@ export default class ChatModel {
     this.addMessage( newMessage );
 
     // Send the message to the server
-    const returnMessage = await this.sendDataToServer();
-    const botMessage = new Message( returnMessage, 'bot', new Date().getTime() );
+    const returnResponse = await this.sendDataToServer();
+    const returnMessage = returnResponse.message;
+    const botMessage = new Message( returnMessage, 'bot', new Date().getTime(), returnResponse.imageString );
     this.addMessage( botMessage );
 
     this.messageReceivedEmitter.emit( botMessage );
@@ -198,15 +208,9 @@ export default class ChatModel {
   /**
    * Send a request to the OpenAI server.
    */
-  public async sendDataToServer(): Promise<string> {
+  public async sendDataToServer(): Promise<ServerResponse> {
 
     this.isWaitingForTextProperty.value = true;
-
-    // // Images are very large. We only want to send an image if it is in the last message. Create a new
-    // // set of Messages and only keep the image if it is in the last message.
-    // const messages = this.messages.map( message => {
-    //   return new Message( message.string, message.source, message.timestamp, message === this.messages[ this.messages.length - 1 ] ? message.imageString : undefined );
-    // } );
 
     const data = {
       messages: this.messages,
@@ -214,15 +218,17 @@ export default class ChatModel {
     };
 
     // Return an error message and indicate that the model is no longer waiting for this request.
-    const resolveError = (): string => {
+    const resolveError = (): ServerResponse => {
       this.isWaitingForTextProperty.value = false;
-      return 'There was an error with the request.';
+      return {
+        message: 'There was an error with the request.'
+      }
     }
 
     // Return a success message and indicate that the model is no longer waiting for this request.
-    const resolveSuccess = ( message: string ): string => {
+    const resolveSuccess = ( response: ServerResponse ): ServerResponse => {
       this.isWaitingForTextProperty.value = false;
-      return message;
+      return response;
     }
 
     try {
@@ -241,11 +247,45 @@ export default class ChatModel {
         return resolveError();
       }
       else {
-        return resolveSuccess( responseData.message.content );
+        return resolveSuccess( {
+          message: responseData.message.content,
+          imageString: responseData.imageString
+        } );
       }
     }
     catch( error ) {
       return resolveError();
+    }
+  }
+
+  /**
+   * Request the list of models from the server. Once requested, they are cached in local storage.
+   * You can forcefully refresh if you wish.
+   * @param refresh
+   */
+  public async fetchModels( refresh = false ): Promise<{ id: string }[]> {
+    try {
+
+      let jsonResponse = localStorage.getItem( 'models' );
+      if ( refresh || jsonResponse === null ) {
+        const response = await fetch( `http://${windowHost}:3000/api/openai/models` );
+
+        if ( response.status === 500 ) {
+          throw new Error( 'There was an error with the request.' );
+        }
+
+        const jsonResponse = await response.json();
+        localStorage.setItem( 'models', JSON.stringify( jsonResponse ) );
+
+        return jsonResponse;
+      }
+      else {
+        return JSON.parse( jsonResponse );
+      }
+    }
+    catch( error ) {
+      console.error( 'Error fetching models:', error );
+      return [];
     }
   }
 
@@ -335,7 +375,13 @@ export default class ChatModel {
     };
 
     // save modelData to local storage
-    const jsonString = JSON.stringify( modelData );
-    localStorage.setItem( 'customChat', jsonString );
+    try {
+      const jsonString = JSON.stringify( modelData );
+      localStorage.setItem( 'customChat', jsonString );
+    }
+    catch {
+      // Handle any errors that may occur during serialization or storage
+      console.error( 'Error saving model data to local storage.' );
+    }
   }
 }

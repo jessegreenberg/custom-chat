@@ -1,12 +1,12 @@
+import Constants from '../Constants.ts';
 import ChatModel from '../model/ChatModel.ts';
 import Message from '../model/Message.ts';
-import Constants from '../Constants.ts';
-import StyledButton from './StyledButton.ts';
 import ScrollableDOMElement from './ScrollableDOMElement.ts';
+import StyledButton from './StyledButton.ts';
 
 // Markdown it node module seems incompatible with vite - so we are using a cdn for now
 // @ts-ignore
-const markdownIt = window.markdownit();
+const markdownIt = window.markdownit( { breaks: true } );
 
 const PADDING = 15;
 
@@ -46,6 +46,7 @@ export default class MessageListView extends ScrollableDOMElement {
       // The chat responds with nice markdown, so we can display it nicely with markdown-it. But we don't want
       // to do that for user content since it could be anything.
       if ( message.source === 'bot' ) {
+        console.log( message.string );
         messageElement.innerHTML = markdownIt.render( message.string );
       }
       else {
@@ -55,18 +56,18 @@ export default class MessageListView extends ScrollableDOMElement {
 
         // so that the new lines are preserved
         textContentElement.style.whiteSpace = 'pre-line';
+      }
 
-        // if there is an image in the message, add it below the text
-        if ( message.imageString ) {
-          const imageElement = document.createElement( 'img' );
+      // if there is an image in the message, add it below the text
+      if ( message.imageString ) {
+        const imageElement = document.createElement( 'img' );
 
-          // the image string is a base64 encoded string representation of the image
-          imageElement.src = 'data:image/png;base64,' + message.imageString;
-          // imageElement.style.width = '25%';
-          // imageElement.style.height = 'auto';
+        // the image string is a base64 encoded string representation of the image
+        imageElement.src = 'data:image/png;base64,' + message.imageString;
+        // imageElement.style.width = '25%';
+        // imageElement.style.height = 'auto';
 
-          messageElement.appendChild( imageElement );
-        }
+        messageElement.appendChild( imageElement );
       }
 
       const buttonParent = document.createElement( 'div' );
@@ -86,7 +87,7 @@ export default class MessageListView extends ScrollableDOMElement {
 
             // Delete all messages below this one
             const index = model.messages.indexOf( message );
-            while( model.messages.length > index ) {
+            while ( model.messages.length > index ) {
               model.removeMessage( model.messages[ model.messages.length - 1 ] );
             }
 

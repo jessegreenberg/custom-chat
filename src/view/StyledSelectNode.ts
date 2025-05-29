@@ -14,6 +14,8 @@ type OptionsValue = {
 };
 
 export default class StyledSelectNode extends Node {
+
+  private readonly selectElement: HTMLSelectElement;
   public constructor( valueProperty: Property<string>, optionsList: OptionsValue[], providedOptions?: any ) {
 
     const options = _.merge( {
@@ -38,25 +40,20 @@ export default class StyledSelectNode extends Node {
     parentElement.style.fontFamily = options.fontFamily;
     parentElement.style.fontSize = options.fontSize;
 
-    const selectElement = document.createElement( 'select' );
-    selectElement.id = Math.random().toString();
+    this.selectElement = document.createElement( 'select' );
+    this.selectElement.id = Math.random().toString();
 
     const labelElement = document.createElement( 'label' );
     labelElement.textContent = options.label;
     labelElement.style.color = Constants.TEXT_COLOR;
-    labelElement.htmlFor = selectElement.id;
+    labelElement.htmlFor = this.selectElement.id;
     labelElement.style.display = 'inline-block';
     labelElement.style.marginBottom = '5px';
 
     parentElement.appendChild( labelElement );
-    parentElement.appendChild( selectElement );
+    parentElement.appendChild( this.selectElement );
 
-    optionsList.forEach( option => {
-      const optionElement = document.createElement( 'option' );
-      optionElement.textContent = option.label;
-      optionElement.value = option.value;
-      selectElement.appendChild( optionElement );
-    } );
+    this.setOptionsList( optionsList );
 
     customDOMNode.parentElement.appendChild( parentElement );
     this.addChild( customDOMNode );
@@ -68,13 +65,23 @@ export default class StyledSelectNode extends Node {
 
     // Two-way update: when the select element changes, update the Property and when the Property changes, update
     // the select element value.
-    selectElement.addEventListener( 'change', event => {
-      valueProperty.value = selectElement.value;
+    this.selectElement.addEventListener( 'change', event => {
+      valueProperty.value = this.selectElement.value;
       options.onchange( event );
 
     } );
     valueProperty.link( value => {
-      selectElement.value = value;
+      this.selectElement.value = value;
+    } );
+  }
+
+  public setOptionsList( optionsList: OptionsValue[] ): void {
+    this.selectElement.innerHTML = ''; // Clear existing options
+    optionsList.forEach( option => {
+      const optionElement = document.createElement( 'option' );
+      optionElement.textContent = option.label;
+      optionElement.value = option.value;
+      this.selectElement.appendChild( optionElement );
     } );
   }
 }
